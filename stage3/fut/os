@@ -1,0 +1,161 @@
+gfx
+	- modes text, pixel
+	- different buffers
+	- switch between them manually or thingily
+
+- similar to tmux
+- hierarchy
+
+- text input channel
+- keyboard input channel
+- mouse input channel
+
+- text output channel
+	-
+- graphics output channel
+
+- add text?
+- scrollback?
+
+init
+
+copy
+remove
+move
+list
+edit
+directory
+
+shell
+terminal
+
+mouse
+keyboard
+text
+
+tiler
+desktop
+
+--
+
+process, display, channel
+
+--
+
+display.x
+display.y
+display.width
+display.height
+display.index
+display.parent
+
+display = current_display()
+display = create_display(x, y, width, height)
+
+add_display(parent, child, -1)
+remove_display(parent, child)
+
+display.set_char(pos, color, text)
+display.set_pixel(pos, color)
+display.flush()
+
+channel = create_channel()
+add_channel(display, channel, name)
+channel = get_channel(display, name)
+
+--
+
+process = create_process(path, display)
+
+add_channel(process, channel)
+get_channel(process, "signal")
+get_channel(process, "status")
+
+--
+
+current_process()
+	.get_channel("status")
+	.send(finish)
+
+--
+void main()
+{
+	current_display()
+		.get_channel("text")
+		.send("hello, world\n");
+}
+
+--
+
+append(string self, string other)
+{
+	self.grow(other.len())
+	memcpy(self.ptr + self.len() - other.len(), other.ptr, other.len())
+}
+
+--
+string get_line(channel input)
+{
+	string s = "";
+
+	loop {
+		string c = input.recv();
+
+		if (c[0] == '\n')
+			break;
+
+		s.append(c);
+	}
+
+	return s;
+}
+
+--
+void main()
+{
+	channel input = current_display()
+		.get_channel("keyboard");
+
+	loop {
+		string command = get_line(input);
+
+		process proc = create_process(path, current_display());
+
+		receiver status = proc
+			.get_channel("status")
+			.subscribe();
+
+		proc.start();
+
+		while (!status.recv().equal("finish"))
+			yield();
+	}
+}
+
+--
+void main()
+{
+
+}
+
+-- channels
+void send(channel c, value v)
+{
+	listener l = c.listeners.pop();
+
+	if (l) {
+		listener.resume(v)
+	} else {
+		for (s in c.subscribers) {
+			if (s.active)
+				s.active.resume(v)
+			else
+				s.buffer.append(v)
+		}
+	}
+}
+
+-- queue
+
+- runqueue pointer at fixed address
+- processes must free all heap allocated memory before exit
