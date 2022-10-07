@@ -17,7 +17,10 @@ STAGE3 = \
 	stage3/halt.o \
 	stage3/framebuffer.o \
 	stage3/memory.o \
-	stage3/paging.o
+	stage3/paging.o \
+	stage3/heap.o \
+	stage3/font.o \
+	stage3/letters.o
 
 lizzyx.img: stage1.out stage2.out stage3.out
 	cat stage{1,2,3}.out > lizzyx.img

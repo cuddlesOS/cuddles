@@ -8,14 +8,14 @@ extern struct __attribute__((packed)) GfxInfo {
 	u16 width;
 	u16 height;
 	u32 framebuffer;
-} *gfxinfo;
+} *gfx_info;
 
 typedef struct {
 	u8 r, g, b, a;
 } color;
 
 u32 make_color(color col);
-void set_pixel(u16 x, u16 y, u32 col);
-void set_region(u16 x, u16 y, u16 w, u16 h, u32 col);
+void gfx_set_pixel(u16 x, u16 y, u32 col);
+void gfx_set_area(u16 x, u16 y, u16 w, u16 h, u32 col);
 
 #endif

@@ -1,6 +1,6 @@
 #include "gfx.h"
 
-struct GfxInfo *gfxinfo = (void *) (0x1000-10);
+struct GfxInfo *gfx_info = (void *) (0x1000-10);
 
 // byteswap
 u32 make_color(color col)
@@ -12,17 +12,17 @@ u32 make_color(color col)
 		& ((u32) col.a << 24);
 }
 
-void set_pixel(u16 x, u16 y, u32 col)
+void gfx_set_pixel(u16 x, u16 y, u32 col)
 {
-	*((u32 *) (u64) (gfxinfo->framebuffer + y * gfxinfo->pitch + x * sizeof col)) = col;
+	*((u32 *) (u64) (gfx_info->framebuffer + y * gfx_info->pitch + x * sizeof col)) = col;
 }
 
-void set_region(u16 x, u16 y, u16 w, u16 h, u32 col)
+void gfx_set_area(u16 x, u16 y, u16 w, u16 h, u32 col)
 {
-	void *cbeg = (void *) (u64) (gfxinfo->framebuffer + y * gfxinfo->pitch + x * sizeof col);
-	void *cend = cbeg + h * gfxinfo->pitch;
+	void *cbeg = (void *) (u64) (gfx_info->framebuffer + y * gfx_info->pitch + x * sizeof col);
+	void *cend = cbeg + h * gfx_info->pitch;
 
-	for (; cbeg < cend; cbeg += gfxinfo->pitch) {
+	for (; cbeg < cend; cbeg += gfx_info->pitch) {
 		void *rbeg = cbeg;
 		void *rend = rbeg + w * sizeof col;
 
