@@ -1,4 +1,4 @@
 floppya: 1_44=lizzyx.img, status=inserted
 boot: a
-display_library: x, options="gui_debug"
+#display_library: x, options="gui_debug"
 megs: 32

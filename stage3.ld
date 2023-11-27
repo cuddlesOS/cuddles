@@ -1,6 +1,5 @@
 OUTPUT(stage3.out)
 OUTPUT_FORMAT(binary)
-ENTRY(kmain)
 
 SECTIONS
 {

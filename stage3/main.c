@@ -8,11 +8,15 @@
 
 void clear_screen(); // framebuffer.asm
 
-void kmain()
+void kmain();
+
+void init()
 {
 	clear_screen();
 	letters_init();
+
 	heap_init();
+	set_font_size(3);
 
 #define MMAP for (MemRegion *mreg = (void *) 0x500; mreg->start != nil; mreg++)
 
@@ -26,17 +30,37 @@ void kmain()
 
 	MMAP heap_add_region(mreg);
 
-	gfx_set_area(0, 0, gfx_info->width, gfx_info->height, 0xFF000000);
-
-	char str[128];
-	str[127] = '\0';
-	for (u8 i = 1; i < 128; i++)
-		str[i-1] = i;
-
-	println(str);
-
+	kmain();
 	halt();
 }
 
-// 0xE0000000
-// 0xE03E8000
+void charset_demo()
+{
+	const u8 max =  '~' - '!' + 1;
+
+	char str[max + 1];
+	str[max] = '\0';
+
+	for (u8 i = 0; i < max; i++)
+		str[i] = i + '!';
+
+	print("charset demo:\n");
+	print(str);
+	print("\n");
+}
+
+void kmain()
+{
+	gfx_set_area(0, 0, gfx_info->width, gfx_info->height, 0xFF000000);
+	charset_demo();
+
+	print(
+		"\n"
+		"#include <stdio.h>\n\n"
+		"int main()\n{\n"
+			"\tprintf(\"hello, world\\n\");\n"
+			"\treturn 0;\n"
+		"}\n"
+		"\n"
+	);
+}

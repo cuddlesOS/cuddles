@@ -111,7 +111,7 @@ void heap_add_region(MemRegion *region)
 			void *region_end = region->start + region->size;
 
 			// rounds up region->start to pagesize align
-			void *use_begin = (void *) ((u64) (region->start + PAGESIZE - 1) & (PAGESIZE - 1));
+			void *use_begin = (void *) ((u64) (region->start + PAGESIZE - 1) & ~(PAGESIZE - 1));
 			void *use_end = use_begin + region->used;
 
 			heap_add(region->start, use_begin - region->start);

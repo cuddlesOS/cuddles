@@ -9,6 +9,6 @@ void halt()
 
 void panic(char *msg)
 {
-	println(msg);
+	print(msg);
 	halt();
 }

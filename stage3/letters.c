@@ -1,6 +1,6 @@
 #include "letters.h"
 
-Letter letters[128];
+Letter letters[256];
 
 void letters_init()
 {
@@ -229,7 +229,7 @@ void letters_init()
 		0, 1, 0
 	}};
 	letters['@'] = (Letter) {{
-		0, 0, 1,
+		0, 0, 0,
 		1, 1, 1,
 		1, 0, 1,
 		1, 1, 1,
@@ -362,11 +362,11 @@ void letters_init()
 		1, 0, 1
 	}};
 	letters['I'] = letters['i'] = (Letter) {{
+		1, 1, 1,
 		0, 1, 0,
-		0, 0, 0,
 		0, 1, 0,
 		0, 1, 0,
-		0, 1, 0
+		1, 1, 1
 	}};
 	letters['J'] = letters['j'] = (Letter) {{
 		0, 0, 1,

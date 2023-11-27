@@ -11,7 +11,7 @@ typedef enum {
 typedef struct __attribute__((packed)) {
 	void *start;
 	usize size;
-	u32 used;
+	usize used;
 } MemRegion;
 
 void page_region(MemRegion *region);
