@@ -95,9 +95,8 @@ void print_char(char c)
 	fix_cursor();
 }
 
-void print(char *line)
+void print(const char *line)
 {
 	while (*line != '\0')
 		print_char(*line++);
 }
-

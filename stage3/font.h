@@ -3,7 +3,7 @@
 
 #include "def.h"
 
-void print(char *line);
+void print(const char *line);
 void set_font_size(u16 size);
 void print_char(char c);
 
