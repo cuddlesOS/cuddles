@@ -18,7 +18,7 @@ mmap:
 	jne .fail
 
 	cmp dword[di+16], 1
-	jne .next
+	; jne .next
 
 	cmp dword[di+4], 0
 	jne .keep
