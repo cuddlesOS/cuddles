@@ -18,4 +18,8 @@ typedef long i64;
 typedef u64 usize;
 typedef i64 isize;
 
+typedef u8 bool;
+#define false ((bool) 0)
+#define true ((bool) 1)
+
 #endif
