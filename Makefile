@@ -17,6 +17,7 @@ STAGE3 = \
 	stage3/halt.o \
 	stage3/framebuffer.o \
 	stage3/memory.o \
+	stage3/memory2.o \
 	stage3/paging.o \
 	stage3/heap.o \
 	stage3/font.o \
