@@ -20,14 +20,20 @@ boot:
 	mov ebx, .msg
 	call print_str
 
+	; print boot drive
+	pusha
+	movzx eax, dl
+	call print_hex
+	call newline
+	popa
+
 	; load stage2 and stage3
 	call load_stages
 
 	; jump into stage2
 	jmp KSTART
 
-.msg: db 10, 13, "nyax stage1", 10, 13, 0
-
+.msg: db 10, 13, "nyax stage1", 10, 13, "boot drive: 0x", 0
 
 load_stages:
 	mov ebx, .msg
