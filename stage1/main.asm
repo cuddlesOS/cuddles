@@ -13,7 +13,7 @@ boot:
 	mov ss, ax
 
 	; init stack
-	mov bp, KSTART ; stack grows down, overwriting MBR
+	mov bp, 0x7C00
 	mov sp, bp
 
 	; print message
@@ -29,6 +29,10 @@ boot:
 
 	; load stage2 and stage3
 	call load_stages
+
+	; reclaim MBR space for stack
+	mov bp, KSTART
+	mov sp, bp
 
 	; jump into stage2
 	jmp KSTART
