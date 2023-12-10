@@ -2,3 +2,4 @@ floppya: 1_44=cuddles.img, status=inserted
 boot: a
 #display_library: x, options="gui_debug"
 megs: 32
+#debug: PIC=report

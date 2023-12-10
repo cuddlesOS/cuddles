@@ -6,6 +6,7 @@
 #include "font.h"
 #include "letters.h"
 #include "interrupts.h"
+#include "pic.h"
 
 void init()
 {
@@ -67,8 +68,10 @@ void init()
 	}
 
 	init_interrupts();
+	pic_init();
 
-	int a = 1/0;
+	unmask_irq(IRQ_PIT);
+	enable_irqs();
 
 	halt();
 }

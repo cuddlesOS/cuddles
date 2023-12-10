@@ -30,6 +30,7 @@ paging:
 
 	mov di, PAGETABLE
 
+	; mask all IRQs
 	mov al, 0xFF
 	out 0xA1, al
 	out 0x21, al
@@ -47,7 +48,6 @@ paging:
 
 	mov ecx, 0xC0000080
 	rdmsr
-
 	or eax, 0x00000100
 	wrmsr
 

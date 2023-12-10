@@ -2,6 +2,7 @@
 #include "halt.h"
 #include "font.h"
 #include "heap.h"
+#include "pic.h"
 
 extern u64 idt_entries[256]; // isr.asm
 
@@ -91,6 +92,10 @@ void interrupt_handler(interrupt_frame *frame)
 		dump_frame(frame);
 
 		halt();
+	} else if (frame->which-32 < 16) {
+		u64 irq = frame->which-32;
+		print("IRQ "); print_num(irq, 10, 0); print("\n");
+		ack_irq(irq);
 	} else {
 		print("Spurious Interrupt "); print_num(frame->which, 10, 0); print("\n");
 		dump_frame(frame);
