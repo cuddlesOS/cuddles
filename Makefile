@@ -1,5 +1,7 @@
 SHELL:=/bin/bash
 
+# -mgeneral-regs-only only needed for interrupt handlers
+
 CFLAGS:= \
 	-nostdlib \
 	-nostdinc \
@@ -7,14 +9,16 @@ CFLAGS:= \
 	-fno-stack-protector \
 	-nostartfiles \
 	-nodefaultlibs \
+	-mgeneral-regs-only \
 	-Wall \
-	-Wextra \
-	-Werror
+	-Wextra
 
 STAGE3 = \
 	stage3/main.o \
 	stage3/gfx.o \
 	stage3/halt.o \
+	stage3/interrupts.o \
+	stage3/isr.o \
 	stage3/framebuffer.o \
 	stage3/memory.o \
 	stage3/memory2.o \
@@ -43,13 +47,16 @@ stage3/%.o: stage3/%.asm
 stage3/%.o: stage3/%.c
 	cc $(CFLAGS) -c $< -o $@
 
+stage3/isr.asm: stage3/isr.lua
+	lua stage3/isr.lua > stage3/isr.asm
+
 .PHONY: run clean flash disas map
 
 run: lizzyx.img
 	echo c | bochs -q
 
 clean:
-	rm -rf stage3/*.o *.out *.img *.map
+	rm -rf stage3/*.o *.out *.img *.map stage3/isr.asm
 
 flash: lizzyx.img
 	dd if=lizzyx.img of=$(DEV)

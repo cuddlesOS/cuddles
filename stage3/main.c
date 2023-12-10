@@ -5,6 +5,7 @@
 #include "heap.h"
 #include "font.h"
 #include "letters.h"
+#include "interrupts.h"
 
 void clear_screen(); // framebuffer.asm
 
@@ -67,6 +68,10 @@ void init()
 		print_num(mregs[i].used, 10, 0);
 		print("\n");
 	}
+
+	init_interrupts();
+
+	int a = 1/0;
 
 	halt();
 }
