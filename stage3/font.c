@@ -49,8 +49,10 @@ static void fix_cursor()
 		cursor_y++;
 	}
 
-	while (cursor_y >= screen_height)
+	while (cursor_y >= screen_height) {
+		gfx_set_area(0, 0, gfx_info->width, gfx_info->height, 0xFF000000);
 		cursor_y -= screen_height;
+	}
 }
 
 void print_char(char c)
