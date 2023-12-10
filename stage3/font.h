@@ -1,5 +1,5 @@
-#ifndef _FONT_H_
-#define _FONT_H_
+#ifndef FONT_H
+#define FONT_H
 
 #include "def.h"
 

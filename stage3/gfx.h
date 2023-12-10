@@ -1,5 +1,5 @@
-#ifndef _GFX_H_
-#define _GFX_H_
+#ifndef GFX_H
+#define GFX_H
 
 #include "def.h"
 

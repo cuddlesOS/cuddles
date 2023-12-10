@@ -1,5 +1,5 @@
-#ifndef _HEAP_H_
-#define _HEAP_H_
+#ifndef HEAP_H
+#define HEAP_H
 
 #include "def.h"
 #include "paging.h"

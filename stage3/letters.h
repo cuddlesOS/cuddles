@@ -1,5 +1,5 @@
-#ifndef _LETTERS_H_
-#define _LETTERS_H_
+#ifndef LETTERS_H
+#define LETTERS_H
 
 #include "def.h"
 

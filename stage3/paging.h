@@ -1,5 +1,5 @@
-#ifndef _PAGING_H_
-#define _PAGING_H_
+#ifndef PAGING_H
+#define PAGING_H
 
 #include "def.h"
 

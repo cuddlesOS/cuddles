@@ -1,5 +1,5 @@
-#ifndef _HALT_H_
-#define _HALT_H_
+#ifndef HALT_H
+#define HALT_H
 
 void halt();
 void panic(char *msg);

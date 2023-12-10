@@ -1,5 +1,5 @@
-#ifndef _DEF_H_
-#define _DEF_H_
+#ifndef DEF_H
+#define DEF_H
 
 #define nil ((void *) 0x0)
 

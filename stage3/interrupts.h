@@ -1,5 +1,5 @@
-#ifndef _INTERRUPTS_H_
-#define _INTERRUPTS_H_
+#ifndef INTERRUPTS_H
+#define INTERRUPTS_H
 
 void init_interrupts();
 
