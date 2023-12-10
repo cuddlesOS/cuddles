@@ -36,7 +36,7 @@ boot:
 	; jump into stage2
 	jmp KSTART
 
-.msg: db 10, 13, "nyax stage1", 10, 13, "boot drive: 0x", 0
+.msg: db 10, 13, "cuddles stage1", 10, 13, "boot drive: 0x", 0
 
 load_stages:
 	mov ebx, .msg

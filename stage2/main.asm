@@ -26,7 +26,7 @@ setup:
 	jmp 0x0008:long_mode
 
 .msg:
-	db 10, 13, "nyax stage2", 10, 13, 0
+	db 10, 13, "cuddles stage2", 10, 13, 0
 
 %include "stage2/vesa.asm"
 %include "stage2/mmap.asm"

@@ -26,8 +26,8 @@ STAGE3 = \
 	stage3/font.o \
 	stage3/letters.o
 
-lizzyx.img: stage1.out stage2.out stage3.out
-	cat stage{1,2,3}.out > lizzyx.img
+cuddles.img: stage1.out stage2.out stage3.out
+	cat stage{1,2,3}.out > cuddles.img
 
 stage1.out: stage1/main.asm stage1/print.asm stage2.out stage3.out
 	nasm -f bin stage1/main.asm -o stage1.out \
@@ -51,14 +51,14 @@ stage3/isr.asm: stage3/isr.lua
 
 .PHONY: run clean flash disas map
 
-run: lizzyx.img
+run: cuddles.img
 	echo c | bochs -q
 
 clean:
 	rm -rf stage3/*.o *.out *.img *.map stage3/isr.asm
 
-flash: lizzyx.img
-	dd if=lizzyx.img of=$(DEV)
+flash: cuddles.img
+	dd if=cuddles.img of=$(DEV)
 
 disas: stage3.out
 	objdump -b binary -D -M intel -m i386:x86-64 stage3.out --adjust-vma 0x9000 --disassembler-color=on
