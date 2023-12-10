@@ -55,7 +55,7 @@ flash: lizzyx.img
 	dd if=lizzyx.img of=$(DEV)
 
 disas: stage3.out
-	objdump -b binary -D -M intel -m i386:x86-64 stage3.out --adjust-vma 0x9000
+	objdump -b binary -D -M intel -m i386:x86-64 stage3.out --adjust-vma 0x9000 --disassembler-color=on
 
 map: stage3.out
 	cat stage3.map
