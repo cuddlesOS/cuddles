@@ -22,4 +22,6 @@ typedef u8 bool;
 #define false ((bool) 0)
 #define true ((bool) 1)
 
+#define BITCAST(expr, from, to) (((union { from f; to t; }) { .f = expr }).t)
+
 #endif
