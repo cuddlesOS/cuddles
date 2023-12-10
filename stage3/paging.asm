@@ -1,6 +1,4 @@
 global page_region
-extern print_hex, print_chr, newline, print_dec, print_str
-
 section .text
 
 pagebuf_init:
@@ -87,12 +85,12 @@ alloc:
 	push rdi
 
 	mov rdi, .oom_msg
-	call print_str
+	; call print_str
 
 	pop rdi
 
-	call print_hex
-	call newline
+	; call print_hex
+	; call newline
 
 	jmp $
 
@@ -163,7 +161,7 @@ get_tables:
 
 space:
 	mov dil, ' '
-	jmp print_chr
+	; jmp print_chr
 
 page_region:
 	push rbx
@@ -182,15 +180,15 @@ page_region:
 	mov rax, 1 << 63
 
 	or rdi, rax
-	call print_hex
-	call space
+	; call print_hex
+	; call space
 
 	mov rdi, [r9+8]
 	add rdi, [rsp]
 	or rdi, rax
 
-	call print_hex
-	call newline
+	; call print_hex
+	; call newline
 
 	pop rdi
 
@@ -318,7 +316,7 @@ page_region:
 
 .bruh:
 	mov rdi, .bruh_msg
-	call print_str
+	; call print_str
 	jmp $
 
 .bruh_msg: db "bruh why do you have more than 256TB of RAM (you fucking glow)", 10, 0

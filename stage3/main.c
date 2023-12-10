@@ -7,11 +7,8 @@
 #include "letters.h"
 #include "interrupts.h"
 
-void clear_screen(); // framebuffer.asm
-
 void init()
 {
-	clear_screen();
 	letters_init();
 
 	heap_init();

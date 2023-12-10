@@ -19,7 +19,6 @@ STAGE3 = \
 	stage3/halt.o \
 	stage3/interrupts.o \
 	stage3/isr.o \
-	stage3/framebuffer.o \
 	stage3/memory.o \
 	stage3/paging.o \
 	stage3/heap.o \
