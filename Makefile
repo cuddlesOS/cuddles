@@ -24,7 +24,8 @@ STAGE3 = \
 	stage3/paging.o \
 	stage3/heap.o \
 	stage3/font.o \
-	stage3/letters.o
+	stage3/letters.o \
+	stage3/anna.o
 
 cuddles.img: stage1.out stage2.out stage3.out
 	cat stage{1,2,3}.out > cuddles.img

@@ -7,6 +7,7 @@
 #include "letters.h"
 #include "interrupts.h"
 #include "pic.h"
+#include "anna.h"
 
 void init()
 {
@@ -70,7 +71,9 @@ void init()
 	init_interrupts();
 	pic_init();
 
-	unmask_irq(IRQ_PIT);
+	uwu();
+
+	// unmask_irq(IRQ_PIT);
 	enable_irqs();
 
 	halt();
