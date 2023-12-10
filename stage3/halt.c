@@ -4,7 +4,7 @@
 void halt()
 {
 	for (;;)
-		;
+		asm volatile("hlt");
 }
 
 void panic(char *msg)
