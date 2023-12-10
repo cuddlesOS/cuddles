@@ -102,3 +102,22 @@ void print(const char *line)
 	while (*line != '\0')
 		print_char(*line++);
 }
+
+
+void print_num(u64 x, u8 base, u8 pad)
+{
+	char digit[65];
+	char *ptr = &digit[64];
+	*ptr = '\0';
+
+	do {
+		u8 digit = x % base;
+		*--ptr = digit + (digit < 10 ? '0' : ('A' - 10));
+		x /= base;
+	} while (x != 0);
+
+	while (ptr > digit + 64 - pad)
+		*--ptr = ' ';
+
+	print(ptr);
+}
