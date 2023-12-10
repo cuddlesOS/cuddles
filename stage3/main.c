@@ -16,7 +16,7 @@ void init()
 	letters_init();
 
 	heap_init();
-	set_font_size(3);
+	set_font_size(2);
 
 #define MMAP for (MemRegion *mreg = (void *) 0x500; mreg->start != nil; mreg++)
 
