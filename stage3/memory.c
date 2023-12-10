@@ -5,12 +5,13 @@ void *memcpy(void *dst, const void *src, usize bytes)
 {
 	for (usize i = 0; i < bytes; i++)
 		((unsigned char *) dst)[i] = ((const unsigned char *) src)[i];
-}
+	return dst;
 
-int memcpy_r(void *dst, const void *src, usize bytes)
+void *memcpy_r(void *dst, const void *src, usize bytes)
 {
 	for (usize i = bytes; i > 0; i--)
 		((unsigned char *) dst)[i-1] = ((const unsigned char *) src)[i-1];
+	return dst;
 }
 
 int memcmp(const void *s1, const void *s2, usize n)
