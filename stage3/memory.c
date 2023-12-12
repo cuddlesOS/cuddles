@@ -6,6 +6,7 @@ void *memcpy(void *dst, const void *src, usize bytes)
 	for (usize i = 0; i < bytes; i++)
 		((unsigned char *) dst)[i] = ((const unsigned char *) src)[i];
 	return dst;
+}
 
 void *memcpy_r(void *dst, const void *src, usize bytes)
 {
