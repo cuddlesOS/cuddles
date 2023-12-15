@@ -15,7 +15,9 @@ u32 make_color(color col)
 
 void gfx_set_pixel(u16 x, u16 y, u32 col)
 {
-	*((u32 *) (u64) (gfx_info->framebuffer + y * gfx_info->pitch + x * sizeof col)) = col;
+	u32 *out = (u32 *) (u64) (gfx_info->framebuffer + y * gfx_info->pitch + x * sizeof col);
+	*out = col;
+	BARRIER_VAR(out);
 }
 
 void gfx_set_area(u16 x, u16 y, u16 w, u16 h, u32 col)
@@ -24,12 +26,14 @@ void gfx_set_area(u16 x, u16 y, u16 w, u16 h, u32 col)
 	void *cend = cbeg + h * gfx_info->pitch;
 
 	for (; cbeg < cend; cbeg += gfx_info->pitch) {
-		void *rbeg = cbeg;
-		void *rend = rbeg + w * sizeof col;
+		u32 *rbeg = cbeg;
+		u32 *rend = rbeg + w;
 
-		for (; rbeg < rend; rbeg += sizeof col)
-			*((u32 *) rbeg) = col;
+		for (; rbeg < rend; rbeg++)
+			*rbeg = col;
 	}
+
+	BARRIER_VAR(cbeg);
 }
 
 void gfx_draw_img(u16 x, u16 y, u16 w, u16 h, u32 *img)
@@ -37,4 +41,6 @@ void gfx_draw_img(u16 x, u16 y, u16 w, u16 h, u32 *img)
 	void *cbeg = (void *) (u64) (gfx_info->framebuffer + y * gfx_info->pitch + x * sizeof(color));
 	for (u16 yi = 0; yi < h; cbeg += gfx_info->pitch, yi++)
 		memcpy(cbeg, img + yi * w, w * sizeof(color));
+
+	BARRIER_VAR(cbeg);
 }

@@ -32,4 +32,7 @@ typedef struct {
 #define S(x) ((str) { sizeof (x) - 1, (x) })
 #define NILS ((str) { 0, nil })
 
+#define BARRIER_VAR(var) asm volatile(""::"m"(var))
+#define BARRIER() asm volatile("":::"memory")
+
 #endif

@@ -1,10 +1,3 @@
-void kmain();
-
-void init()
-{
-	kmain();
-}
-
 #include "def.h"
 #include "paging.h"
 #include "gfx.h"

@@ -14,6 +14,7 @@ override CFLAGS += \
 	-Wextra
 
 STAGE3 = \
+	stage3/init.o \
 	stage3/main.o \
 	stage3/gfx.o \
 	stage3/halt.o \
@@ -82,6 +83,9 @@ bochs: cuddles.img
 
 qemu: cuddles.img
 	qemu-system-x86_64 -drive format=raw,file=cuddles.img
+
+qemu_slow: cuddles.img
+	qemu-system-x86_64 -icount shift=9,align=on,sleep=on -drive format=raw,file=cuddles.img
 
 run: qemu
 
