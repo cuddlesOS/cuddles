@@ -24,22 +24,29 @@ STAGE3 = \
 	stage3/paging.o \
 	stage3/heap.o \
 	stage3/font.o \
-	stage3/letters.o \
-	stage3/anna.o
+	stage3/font_classic.o \
+	stage3/ata.o \
+	stage3/string.o \
+	stage3/pci.o \
+	stage3/fs.o
 
-cuddles.img: stage1.out stage2.out stage3.out
-	cat stage{1,2,3}.out > cuddles.img
+PAD_BOUNDARY = pad() { truncate -s $$(echo "($$(du -b $$1 | cut -f1)+$$2-1)/$$2*$$2" | bc) $$1; }; pad
 
-stage1.out: stage1/main.asm stage1/print.asm stage2.out stage3.out
-	nasm -f bin stage1/main.asm -o stage1.out \
-		-dKSIZE=$$(du -cb stage{2,3}.out | tail -n1 | cut -f1)
+cuddles.img: stage1.bin stage2.bin stage3.bin fs.tar
+	cat stage{1,2,3}.bin fs.tar > cuddles.img
+	$(PAD_BOUNDARY) cuddles.img 1048576
 
-stage2.out: stage2/main.asm stage2/mmap.asm stage2/paging.asm stage2/vesa.asm stage1/print.asm
-	nasm -f bin stage2/main.asm -o stage2.out
-	dd if=/dev/zero bs=1 count=$$(echo 4608-$$(du -b stage2.out | cut -f1) | bc) >> stage2.out
+stage1.bin: stage1/main.asm stage1/print.asm stage2.bin stage3.bin
+	nasm -f bin stage1/main.asm -o stage1.bin \
+		-dKSIZE=$$(du -cb stage{2,3}.bin | tail -n1 | cut -f1)
 
-stage3.out: $(STAGE3) stage3.ld
+stage2.bin: stage2/main.asm stage2/mmap.asm stage2/paging.asm stage2/vesa.asm stage1/print.asm
+	nasm -f bin stage2/main.asm -o stage2.bin
+	truncate -s 4608 stage2.bin
+
+stage3.bin: $(STAGE3) stage3.ld
 	ld $(STAGE3) -T stage3.ld -Map=stage3.map
+	$(PAD_BOUNDARY) stage3.bin 512
 
 stage3/%.o: stage3/%.asm
 	nasm -f elf64 $< -o $@
@@ -50,19 +57,28 @@ stage3/%.o: stage3/%.c
 stage3/isr.asm: stage3/isr.lua
 	lua stage3/isr.lua > stage3/isr.asm
 
-.PHONY: run clean flash disas map
+fs.tar: $(shell find fs | sed 's/ /\\ /g')
+	cd fs && tar --format=ustar -cf ../fs.tar *
 
-run: cuddles.img
+.PHONY: run clean flash disas map qemu bochs
+
+bochs: cuddles.img
+	rm -f cuddles.img.lock
 	echo c | bochs -q
 
+qemu: cuddles.img
+	qemu-system-x86_64 -drive format=raw,file=cuddles.img
+
+run: qemu
+
 clean:
-	rm -rf stage3/*.o *.out *.img *.map stage3/isr.asm
+	rm -rf stage3/*.o *.bin *.img *.map stage3/isr.asm fs.tar
 
 flash: cuddles.img
 	dd if=cuddles.img of=$(DEV)
 
-disas: stage3.out
-	objdump -b binary -D -M intel -m i386:x86-64 stage3.out --adjust-vma 0x9000 --disassembler-color=on
+disas: stage3.bin
+	objdump -b binary -D -M intel -m i386:x86-64 stage3.bin --adjust-vma 0x9000 --disassembler-color=on
 
-map: stage3.out
+map: stage3.bin
 	cat stage3.map

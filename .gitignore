@@ -1,6 +1,7 @@
-*.out
+*.bin
 *.o
 *.img
 *.map
 bx_enh_dbg.ini
 stage3/isr.asm
+fs.tar

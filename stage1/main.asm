@@ -19,6 +19,9 @@ boot:
 	mov ebx, .msg
 	call print_str
 
+	; save offset of the file system
+	mov dword[0x1000-10-8], KSIZE+512
+
 	; print boot drive
 	pusha
 	movzx eax, dl
@@ -144,6 +147,9 @@ load_stages:
 .heads: db "number of heads: ", 0
 
 %include "stage1/print.asm"
+
+times 440-($-$$) db 0
+db "hugs"
 
 times 510-($-$$) db 0
 dw 0xAA55

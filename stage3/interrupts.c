@@ -102,6 +102,13 @@ void interrupt_handler(interrupt_frame *frame)
 	}
 }
 
+typedef struct {
+	u16 size;
+	u64 addr;
+} __attribute__((packed)) idt_descriptor;
+
+idt_descriptor idtr;
+
 void init_interrupts()
 {
 	typedef struct {
@@ -139,12 +146,7 @@ void init_interrupts()
 		};
 	}
 
-	typedef struct {
-		u16 size;
-		u64 addr;
-	} __attribute__((packed)) idt_descriptor;
-
-	idt_descriptor idtr = {
+	idtr = (idt_descriptor) {
 		.size = 256 * sizeof *idt - 1,
 		.addr = (u64) &idt[0],
 	};

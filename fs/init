@@ -1,0 +1,10 @@
+font fonts/Bm437_IBM_VGA_8x16.cuddlefont
+echo hello world
+cat uwu.txt
+charset_demo
+lspci
+echo meow meow meow
+img blahaj.cuddleimg
+font fonts/ter-u16n.cuddlefont
+echo This is the terminus font!
+charset_demo

@@ -1,9 +1,16 @@
 #include "font.h"
-#include "letters.h"
+#include "font_classic.h"
 #include "gfx.h"
+#include "heap.h"
+#include "memory.h"
 
 // important: must be a multiple of 2, else code won't work
 #define TAB_SIZE 4
+
+#define CHAR_WIDTH  8
+#define CHAR_HEIGHT 16
+
+static u8 *font; // u8[256][16]
 
 static u16 font_size;
 
@@ -12,15 +19,53 @@ static u16 cursor_x, cursor_y;
 
 static u16 screen_width, screen_height;
 
-void set_font_size(u16 size)
+void font_init()
+{
+	font = malloc(256 * 16);
+}
+
+void font_set_size(u16 size)
 {
 	font_size = size;
 
-	outer_width  = (LETTER_WIDTH  + 2) * font_size;
-	outer_height = (LETTER_HEIGHT + 2) * font_size;
+	outer_width  = CHAR_WIDTH  * font_size;
+	outer_height = CHAR_HEIGHT * font_size;
 
 	screen_width  = gfx_info->width  / outer_width;
 	screen_height = gfx_info->height / outer_height;
+}
+
+void font_load_blob(const void *blob)
+{
+	memcpy(font, blob, 256*16);
+}
+
+void font_load_classic()
+{
+	memset(font, 0, 256 * 16);
+
+	classic_char *cfont = font_classic();
+
+	int scale = 2;
+	int xpad = (CHAR_WIDTH  - CLASSIC_CHAR_WIDTH  * scale) / 2;
+	int ypad = (CHAR_HEIGHT - CLASSIC_CHAR_HEIGHT * scale) / 2;
+
+	for (int i = 0; i < 255; i++)
+	for (int xc = 0; xc < CLASSIC_CHAR_WIDTH;  xc++)
+	for (int yc = 0; yc < CLASSIC_CHAR_HEIGHT; yc++) {
+		if (!cfont[i].data[yc * CLASSIC_CHAR_WIDTH + xc])
+			continue;
+
+		for (int xf = 0; xf < scale; xf++)
+		for (int yf = 0; yf < scale; yf++) {
+			int x = xc * scale + xpad + xf;
+			int y = yc * scale + ypad + yf;
+
+			font[i * CHAR_HEIGHT + y] |= (1 << x);
+		}
+	}
+
+	free(cfont);
 }
 
 static void render_char(u8 c)
@@ -30,14 +75,14 @@ static void render_char(u8 c)
 
 	gfx_set_area(base_x, base_y, outer_width, outer_height, 0xFF000000);
 
-	for (u16 x = 0; x < LETTER_WIDTH;  x++)
-	for (u16 y = 0; y < LETTER_HEIGHT; y++) {
-		if (!letters[c].data[y * LETTER_WIDTH + x])
+	for (u16 x = 0; x < CHAR_WIDTH;  x++)
+	for (u16 y = 0; y < CHAR_HEIGHT; y++) {
+		if (!(font[c * CHAR_HEIGHT + y] & (1 << x)))
 			continue;
 
 		gfx_set_area(
-			base_x + (x + 1) * font_size,
-			base_y + (y + 1) * font_size,
+			base_x + x * font_size,
+			base_y + y * font_size,
 			font_size, font_size, 0xFFFFFFFF);
 	}
 }
@@ -103,8 +148,13 @@ void print(const char *line)
 		print_char(*line++);
 }
 
+void printn(const char *line, usize len)
+{
+	for (usize i = 0; i < len; i++)
+		print_char(*line++);
+}
 
-void print_num(u64 x, u8 base, u8 pad)
+void print_padded(u64 x, u8 base, u8 pad_len, char pad_char)
 {
 	char digit[65];
 	char *ptr = &digit[64];
@@ -116,8 +166,13 @@ void print_num(u64 x, u8 base, u8 pad)
 		x /= base;
 	} while (x != 0);
 
-	while (ptr > digit + 64 - pad)
-		*--ptr = ' ';
+	while (ptr > digit + 64 - pad_len)
+		*--ptr = pad_char;
 
 	print(ptr);
+}
+
+void print_num(u64 x, u8 base, u8 pad)
+{
+	print_padded(x, base, pad, ' ');
 }

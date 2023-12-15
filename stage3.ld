@@ -1,4 +1,4 @@
-OUTPUT(stage3.out)
+OUTPUT(stage3.bin)
 OUTPUT_FORMAT(binary)
 
 SECTIONS

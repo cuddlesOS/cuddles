@@ -1,490 +1,495 @@
-#include "letters.h"
+#include "font_classic.h"
+#include "heap.h"
+#include "memory.h"
 
-Letter letters[256];
-
-void letters_init()
+classic_char *font_classic()
 {
-	letters[' '] = (Letter) {{
+	classic_char *font = malloc(256 * sizeof *font);
+	memset(font, 0, 256 * sizeof *font);
+
+	font[' '] = (classic_char) {{
 		0, 0, 0,
 		0, 0, 0,
 		0, 0, 0,
 		0, 0, 0,
 		0, 0, 0
 	}};
-	letters['!'] = (Letter) {{
+	font['!'] = (classic_char) {{
 		0, 1, 0,
 		0, 1, 0,
 		0, 1, 0,
 		0, 0, 0,
 		0, 1, 0
 	}};
-	letters['\"'] = (Letter) {{
+	font['\"'] = (classic_char) {{
 		1, 0, 1,
 		1, 0, 1,
 		0, 0, 0,
 		0, 0, 0,
 		0, 0, 0
 	}};
-	letters['#'] = (Letter) {{
+	font['#'] = (classic_char) {{
 		1, 0, 1,
 		1, 1, 1,
 		1, 0, 1,
 		1, 1, 1,
 		1, 0, 1
 	}};
-	letters['$'] = (Letter) {{
+	font['$'] = (classic_char) {{
 		0, 1, 0,
 		1, 1, 1,
 		0, 1, 0,
 		1, 1, 1,
 		0, 1, 0
 	}};
-	letters['%'] = (Letter) {{
+	font['%'] = (classic_char) {{
 		1, 0, 1,
 		0, 0, 1,
 		0, 1, 0,
 		1, 0, 0,
 		1, 0, 1
 	}};
-	letters['&'] = (Letter) {{
+	font['&'] = (classic_char) {{
 		1, 1, 0,
 		1, 0, 0,
 		1, 1, 1,
 		1, 0, 1,
 		1, 1, 1
 	}};
-	letters['\''] = (Letter) {{
+	font['\''] = (classic_char) {{
 		0, 1, 0,
 		0, 1, 0,
 		0, 0, 0,
 		0, 0, 0,
 		0, 0, 0
 	}};
-	letters['('] = (Letter) {{
+	font['('] = (classic_char) {{
 		0, 1, 0,
 		1, 0, 0,
 		1, 0, 0,
 		1, 0, 0,
 		0, 1, 0
 	}};
-	letters[')'] = (Letter) {{
+	font[')'] = (classic_char) {{
 		0, 1, 0,
 		0, 0, 1,
 		0, 0, 1,
 		0, 0, 1,
 		0, 1, 0
 	}};
-	letters['*'] = (Letter) {{
+	font['*'] = (classic_char) {{
 		1, 0, 1,
 		0, 1, 0,
 		1, 0, 1,
 		0, 0, 0,
 		0, 0, 0
 	}};
-	letters['+'] = (Letter) {{
+	font['+'] = (classic_char) {{
 		0, 0, 0,
 		0, 1, 0,
 		1, 1, 1,
 		0, 1, 0,
 		0, 0, 0
 	}};
-	letters[','] = (Letter) {{
+	font[','] = (classic_char) {{
 		0, 0, 0,
 		0, 0, 0,
 		0, 1, 0,
 		0, 1, 0,
 		1, 0, 0
 	}};
-	letters['-'] = (Letter) {{
+	font['-'] = (classic_char) {{
 		0, 0, 0,
 		0, 0, 0,
 		1, 1, 1,
 		0, 0, 0,
 		0, 0, 0
 	}};
-	letters['.'] = (Letter) {{
+	font['.'] = (classic_char) {{
 		0, 0, 0,
 		0, 0, 0,
 		0, 0, 0,
 		0, 0, 0,
 		0, 1, 0
 	}};
-	letters['/'] = (Letter) {{
+	font['/'] = (classic_char) {{
 		0, 0, 1,
 		0, 0, 1,
 		0, 1, 0,
 		1, 0, 0,
 		1, 0, 0
 	}};
-	letters['0'] = (Letter) {{
+	font['0'] = (classic_char) {{
 		0, 1, 0,
 		1, 0, 1,
 		1, 0, 1,
 		1, 0, 1,
 		0, 1, 0
 	}};
-	letters['1'] = (Letter) {{
+	font['1'] = (classic_char) {{
 		0, 0, 1,
 		0, 1, 1,
 		0, 0, 1,
 		0, 0, 1,
 		0, 0, 1
 	}};
-	letters['2'] = (Letter) {{
+	font['2'] = (classic_char) {{
 		1, 1, 1,
 		1, 0, 1,
 		0, 1, 0,
 		1, 0, 0,
 		1, 1, 1
 	}};
-	letters['3'] = (Letter) {{
+	font['3'] = (classic_char) {{
 		1, 1, 1,
 		0, 0, 1,
 		0, 1, 1,
 		0, 0, 1,
 		1, 1, 1
 	}};
-	letters['4'] = (Letter) {{
+	font['4'] = (classic_char) {{
 		1, 0, 1,
 		1, 0, 1,
 		1, 1, 1,
 		0, 0, 1,
 		0, 0, 1
 	}};
-	letters['5'] = (Letter) {{
+	font['5'] = (classic_char) {{
 		1, 1, 1,
 		1, 0, 0,
 		1, 1, 1,
 		0, 0, 1,
 		1, 1, 0
 	}};
-	letters['6'] = (Letter) {{
+	font['6'] = (classic_char) {{
 		1, 1, 1,
 		1, 0, 0,
 		1, 1, 1,
 		1, 0, 1,
 		1, 1, 1
 	}};
-	letters['7'] = (Letter) {{
+	font['7'] = (classic_char) {{
 		1, 1, 1,
 		0, 0, 1,
 		0, 1, 0,
 		1, 0, 0,
 		1, 0, 0
 	}};
-	letters['8'] = (Letter) {{
+	font['8'] = (classic_char) {{
 		1, 1, 1,
 		1, 0, 1,
 		1, 1, 1,
 		1, 0, 1,
 		1, 1, 1
 	}};
-	letters['9'] = (Letter) {{
+	font['9'] = (classic_char) {{
 		1, 1, 1,
 		1, 0, 1,
 		1, 1, 1,
 		0, 0, 1,
 		1, 1, 1
 	}};
-	letters[':'] = (Letter) {{
+	font[':'] = (classic_char) {{
 		0, 0, 0,
 		0, 1, 0,
 		0, 0, 0,
 		0, 1, 0,
 		0, 0, 0
 	}};
-	letters[';'] = (Letter) {{
+	font[';'] = (classic_char) {{
 		0, 1, 0,
 		0, 0, 0,
 		0, 1, 0,
 		0, 1, 0,
 		1, 0, 0
 	}};
-	letters['<'] = (Letter) {{
+	font['<'] = (classic_char) {{
 		0, 0, 0,
 		0, 1, 0,
 		1, 0, 0,
 		0, 1, 0,
 		0, 0, 0
 	}};
-	letters['='] = (Letter) {{
+	font['='] = (classic_char) {{
 		0, 0, 0,
 		1, 1, 1,
 		0, 0, 0,
 		1, 1, 1,
 		0, 0, 0
 	}};
-	letters['>'] = (Letter) {{
+	font['>'] = (classic_char) {{
 		0, 0, 0,
 		0, 1, 0,
 		0, 0, 1,
 		0, 1, 0,
 		0, 0, 0
 	}};
-	letters['?'] = (Letter) {{
+	font['?'] = (classic_char) {{
 		1, 1, 1,
 		0, 0, 1,
 		0, 1, 0,
 		0, 0, 0,
 		0, 1, 0
 	}};
-	letters['@'] = (Letter) {{
+	font['@'] = (classic_char) {{
 		0, 0, 0,
 		1, 1, 1,
 		1, 0, 1,
 		1, 1, 1,
 		1, 1, 1
 	}};
-	letters['['] = (Letter) {{
+	font['['] = (classic_char) {{
 		1, 1, 0,
 		1, 0, 0,
 		1, 0, 0,
 		1, 0, 0,
 		1, 1, 0
 	}};
-	letters[']'] = (Letter) {{
+	font[']'] = (classic_char) {{
 		0, 1, 1,
 		0, 0, 1,
 		0, 0, 1,
 		0, 0, 1,
 		0, 1, 1
 	}};
-	letters['\\'] = (Letter) {{
+	font['\\'] = (classic_char) {{
 		1, 0, 0,
 		1, 0, 0,
 		0, 1, 0,
 		0, 0, 1,
 		0, 0, 1
 	}};
-	letters['^'] = (Letter) {{
+	font['^'] = (classic_char) {{
 		0, 1, 0,
 		1, 0, 1,
 		0, 0, 0,
 		0, 0, 0,
 		0, 0, 0
 	}};
-	letters['_'] = (Letter) {{
+	font['_'] = (classic_char) {{
 		0, 0, 0,
 		0, 0, 0,
 		0, 0, 0,
 		0, 0, 0,
 		1, 1, 1
 	}};
-	letters['`'] = (Letter) {{
+	font['`'] = (classic_char) {{
 		0, 1, 0,
 		0, 0, 1,
 		0, 0, 0,
 		0, 0, 0,
 		0, 0, 0
 	}};
-	letters['~'] = (Letter) {{
+	font['~'] = (classic_char) {{
 		0, 0, 0,
 		0, 0, 1,
 		1, 1, 1,
 		1, 0, 0,
 		0, 0, 0
 	}};
-	letters['{'] = (Letter) {{
+	font['{'] = (classic_char) {{
 		0, 1, 1,
 		0, 1, 0,
 		1, 1, 0,
 		0, 1, 0,
 		0, 1, 1
 	}};
-	letters['}'] = (Letter) {{
+	font['}'] = (classic_char) {{
 		1, 1, 0,
 		0, 1, 0,
 		0, 1, 1,
 		0, 1, 0,
 		1, 1, 0
 	}};
-	letters['|'] = (Letter) {{
+	font['|'] = (classic_char) {{
 		0, 1, 0,
 		0, 1, 0,
 		0, 1, 0,
 		0, 1, 0,
 		0, 1, 0
 	}};
-	letters['A'] = letters['a'] = (Letter) {{
+	font['A'] = font['a'] = (classic_char) {{
 		1, 1, 1,
 		1, 0, 1,
 		1, 1, 1,
 		1, 0, 1,
 		1, 0, 1
 	}};
-	letters['B'] = letters['b'] = (Letter) {{
+	font['B'] = font['b'] = (classic_char) {{
 		1, 1, 0,
 		1, 0, 1,
 		1, 1, 1,
 		1, 0, 1,
 		1, 1, 0
 	}};
-	letters['C'] = letters['c'] = (Letter) {{
+	font['C'] = font['c'] = (classic_char) {{
 		1, 1, 1,
 		1, 0, 0,
 		1, 0, 0,
 		1, 0, 0,
 		1, 1, 1
 	}};
-	letters['D'] = letters['d'] = (Letter) {{
+	font['D'] = font['d'] = (classic_char) {{
 		1, 1, 0,
 		1, 0, 1,
 		1, 0, 1,
 		1, 0, 1,
 		1, 1, 0
 	}};
-	letters['E'] = letters['e'] = (Letter) {{
+	font['E'] = font['e'] = (classic_char) {{
 		1, 1, 1,
 		1, 0, 0,
 		1, 1, 1,
 		1, 0, 0,
 		1, 1, 1
 	}};
-	letters['F'] = letters['f'] = (Letter) {{
+	font['F'] = font['f'] = (classic_char) {{
 		1, 1, 1,
 		1, 0, 0,
 		1, 1, 1,
 		1, 0, 0,
 		1, 0, 0
 	}};
-	letters['G'] = letters['g'] = (Letter) {{
+	font['G'] = font['g'] = (classic_char) {{
 		1, 1, 1,
 		1, 0, 0,
 		1, 0, 1,
 		1, 0, 1,
 		1, 1, 1
 	}};
-	letters['H'] = letters['h'] = (Letter) {{
+	font['H'] = font['h'] = (classic_char) {{
 		1, 0, 1,
 		1, 0, 1,
 		1, 1, 1,
 		1, 0, 1,
 		1, 0, 1
 	}};
-	letters['I'] = letters['i'] = (Letter) {{
+	font['I'] = font['i'] = (classic_char) {{
 		1, 1, 1,
 		0, 1, 0,
 		0, 1, 0,
 		0, 1, 0,
 		1, 1, 1
 	}};
-	letters['J'] = letters['j'] = (Letter) {{
+	font['J'] = font['j'] = (classic_char) {{
 		0, 0, 1,
 		0, 0, 1,
 		0, 0, 1,
 		0, 0, 1,
 		1, 1, 1
 	}};
-	letters['K'] = letters['k'] = (Letter) {{
+	font['K'] = font['k'] = (classic_char) {{
 		1, 0, 1,
 		1, 1, 0,
 		1, 0, 0,
 		1, 1, 0,
 		1, 0, 1,
 	}};
-	letters['L'] = letters['l'] = (Letter) {{
+	font['L'] = font['l'] = (classic_char) {{
 		1, 0, 0,
 		1, 0, 0,
 		1, 0, 0,
 		1, 0, 0,
 		1, 1, 1
 	}};
-	letters['M'] = letters['m'] = (Letter) {{
+	font['M'] = font['m'] = (classic_char) {{
 		1, 0, 1,
 		1, 1, 1,
 		1, 0, 1,
 		1, 0, 1,
 		1, 0, 1
 	}};
-	letters['N'] = letters['n'] = (Letter) {{
+	font['N'] = font['n'] = (classic_char) {{
 		1, 0, 1,
 		1, 0, 1,
 		1, 1, 1,
 		1, 1, 1,
 		1, 0, 1
 	}};
-	letters['O'] = letters['o'] = (Letter) {{
+	font['O'] = font['o'] = (classic_char) {{
 		1, 1, 1,
 		1, 0, 1,
 		1, 0, 1,
 		1, 0, 1,
 		1, 1, 1
 	}};
-	letters['P'] = letters['p'] = (Letter) {{
+	font['P'] = font['p'] = (classic_char) {{
 		1, 1, 1,
 		1, 0, 1,
 		1, 1, 1,
 		1, 0, 0,
 		1, 0, 0
 	}};
-	letters['Q'] = letters['q'] = (Letter) {{
+	font['Q'] = font['q'] = (classic_char) {{
 		1, 1, 1,
 		1, 0, 1,
 		1, 0, 1,
 		1, 1, 1,
 		0, 0, 1
 	}};
-	letters['R'] = letters['r'] = (Letter) {{
+	font['R'] = font['r'] = (classic_char) {{
 		1, 1, 1,
 		1, 0, 1,
 		1, 1, 1,
 		1, 1, 0,
 		1, 0, 1
 	}};
-	letters['S'] = letters['s'] = (Letter) {{
+	font['S'] = font['s'] = (classic_char) {{
 		1, 1, 1,
 		1, 0, 0,
 		1, 1, 1,
 		0, 0, 1,
 		1, 1, 1
 	}};
-	letters['T'] = letters['t'] = (Letter) {{
+	font['T'] = font['t'] = (classic_char) {{
 		1, 1, 1,
 		0, 1, 0,
 		0, 1, 0,
 		0, 1, 0,
 		0, 1, 0
 	}};
-	letters['U'] = letters['u'] = (Letter) {{
+	font['U'] = font['u'] = (classic_char) {{
 		1, 0, 1,
 		1, 0, 1,
 		1, 0, 1,
 		1, 0, 1,
 		1, 1, 1
 	}};
-	letters['V'] = letters['v'] = (Letter) {{
+	font['V'] = font['v'] = (classic_char) {{
 		1, 0, 1,
 		1, 0, 1,
 		1, 0, 1,
 		1, 0, 1,
 		0, 1, 0
 	}};
-	letters['W'] = letters['w'] = (Letter) {{
+	font['W'] = font['w'] = (classic_char) {{
 		1, 0, 1,
 		1, 0, 1,
 		1, 0, 1,
 		1, 1, 1,
 		1, 0, 1
 	}};
-	letters['X'] = letters['x'] = (Letter) {{
+	font['X'] = font['x'] = (classic_char) {{
 		1, 0, 1,
 		1, 0, 1,
 		0, 1, 0,
 		1, 0, 1,
 		1, 0, 1
 	}};
-	letters['Y'] = letters['y'] = (Letter) {{
+	font['Y'] = font['y'] = (classic_char) {{
 		1, 0, 1,
 		1, 0, 1,
 		1, 1, 1,
 		0, 1, 0,
 		0, 1, 0
 	}};
-	letters['Z'] = letters['z'] = (Letter) {{
+	font['Z'] = font['z'] = (classic_char) {{
 		1, 1, 1,
 		0, 0, 1,
 		0, 1, 0,
 		1, 0, 0,
 		1, 1, 1
 	}};
+
+	return font;
 }

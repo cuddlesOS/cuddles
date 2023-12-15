@@ -46,7 +46,7 @@ void *try_malloc(usize size)
 			prev->next = h->next;
 		} else {
 			// split
-			h->size -= size;
+			h->size -= size + sizeof(Header);
 			h = ((void *) h) + sizeof(Header) + h->size;
 			h->size = size;
 		}
