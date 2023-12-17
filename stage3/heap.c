@@ -1,5 +1,6 @@
 #include "halt.h"
 #include "heap.h"
+#include "memory.h"
 
 #define PAGESIZE 0x1000
 #define MAGIC ((void *) 0x69)
@@ -72,6 +73,24 @@ void *malloc(usize size)
 	panic("out of memory");
 
 	return nil;
+}
+
+void *realloc(void *ptr, usize size)
+{
+	if (ptr == nil)
+		return malloc(size);
+
+	Header *h = ((Header *) ptr) - 1;
+
+	if (h->next != MAGIC)
+		panic("realloc: invalid pointer");
+
+	void *new = malloc(size);
+
+	memcpy(new, ptr, h->size);
+	free(ptr);
+
+	return new;
 }
 
 void heap_init()
