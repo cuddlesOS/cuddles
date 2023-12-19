@@ -4,5 +4,5 @@ dump2cuddlekeys: main.c
 dumpkeys:
 	dumpkeys -C/dev/tty1 | grep '^keycode' | less
 
-preview: map2cuddlekeys
+preview: dump2cuddlekeys
 	dumpkeys -C/dev/tty1 | ./dump2cuddlekeys | hexdump -C

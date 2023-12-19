@@ -27,31 +27,36 @@ void keyboard_handler()
 	str buffer = NILS;
 	usize cap = 0;
 	print(S("$ "));
+	bool shift = false;
 
 	for (;;) {
 		event *e = yield(nil);
-
-		char c = keymap[e->data.scancode];
-		if (c != '\0') {
-			if (c == '\b') {
-				if (buffer.len > 0) {
-					print_char(c);
-					buffer.len--;
-				}
-			} else if (c == '\n') {
-				print_char(c);
-				shell_run_cmd(buffer);
-				buffer.len = 0;
-				print(S("$ "));
-			} else {
-				print_char(c);
-				if (buffer.len == cap)
-					buffer.data = realloc(buffer.data, cap = cap ? cap*2 : 1);
-				buffer.data[buffer.len++] = c;
-			}
-		}
-
+		u8 code = e->data.scancode;
 		free(e);
+
+		bool stop = (code & (1 << 7)) != 0;
+		code &= ~(1 << 7);
+
+		char c = keymap[code*2+shift];
+		if (c == '\xe') {
+			shift = !stop;
+		} else if (stop) {
+		} else if (c == '\b') {
+			if (buffer.len > 0) {
+				print_char(c);
+				buffer.len--;
+			}
+		} else if (c == '\n') {
+			print_char(c);
+			shell_run_cmd(buffer);
+			buffer.len = 0;
+			print(S("$ "));
+		} else if (c != '\0') {
+			print_char(c);
+			if (buffer.len == cap)
+				buffer.data = realloc(buffer.data, cap = cap ? cap*2 : 1);
+			buffer.data[buffer.len++] = c;
+		}
 	}
 }
 
