@@ -115,6 +115,7 @@ void kmain()
 	ata_init();
 	ps2_init();
 
+	print(S("loading debug info\n"));
 	dbg_map = fs_read(S("dbg/kernel.map"));
 	dbg_disas = fs_read(S("dbg/kernel.dis.asm"));
 

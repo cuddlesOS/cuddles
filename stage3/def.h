@@ -35,4 +35,6 @@ typedef struct {
 #define BARRIER_VAR(var) asm volatile(""::"m"(var))
 #define BARRIER() asm volatile("":::"memory")
 
+#define LEN(x) (sizeof (x) / sizeof *(x))
+
 #endif

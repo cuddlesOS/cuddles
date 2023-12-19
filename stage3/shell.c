@@ -168,6 +168,58 @@ static void cmd_uname(str arg)
 	print(S("\n"));
 }
 
+static u64 ipow(u64 b, u64 exp)
+{
+	u64 x = 1;
+	for (u64 i = 0; i < exp; i++)
+		x *= b;
+	return x;
+}
+
+static void print_bytes(usize bytes)
+{
+	static char fmt[] = { ' ', 'K', 'M', 'G', 'T' };
+	usize unit = ipow(1000, LEN(fmt)-1);
+	for (usize i = 0; i < LEN(fmt); i++) {
+		if (bytes >= unit || unit == 1) {
+			print_num_pad(bytes/unit, 10, 3, ' ');
+			print_char('.');
+			print_dec((bytes%unit)/100);
+			print_char(' ');
+			print_char(fmt[LEN(fmt)-1-i]);
+			print_char('B');
+			break;
+		}
+		unit /= 1000;
+	}
+}
+
+static void cmd_ls(str arg)
+{
+	dir d = fs_readdir(arg);
+	usize longest = 0;
+	for (usize i = 0; i < d.len; i++)
+		if (longest < d.data[i].name.len)
+			longest = d.data[i].name.len;
+	for (usize i = 0; i < d.len; i++) {
+		print_char(' ');
+		print_bytes(d.data[i].size);
+		print_char(' ');
+		print(d.data[i].name);
+		for (usize j = 0; j < longest+1-d.data[i].name.len; j++)
+			print_char(' ');
+		if (d.data[i].is_dir) {
+			print_dec(d.data[i].children);
+			print(S(" files"));
+		}
+		print_char('\n');
+		free(d.data[i].name.data);
+	}
+
+	if (d.data != nil)
+		free(d.data);
+}
+
 typedef struct {
 	str name;
 	void (*fn)(str arg);
@@ -185,6 +237,7 @@ static command registry[] = {
 	{ S("clear"),    &cmd_clear    },
 	{ S("love"),     &cmd_love     },
 	{ S("uname"),    &cmd_uname    },
+	{ S("ls"),       &cmd_ls       },
 };
 
 void shell_run_cmd(str cmd)
@@ -194,7 +247,7 @@ void shell_run_cmd(str cmd)
 	if (prog.len == 0)
 		return;
 
-	for (usize i = 0; i < sizeof registry / sizeof *registry; i++) {
+	for (usize i = 0; i < LEN(registry); i++) {
 		if (str_cmp(prog, registry[i].name) == 0) {
 			registry[i].fn(cmd);
 			return;

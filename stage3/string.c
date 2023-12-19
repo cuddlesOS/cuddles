@@ -91,3 +91,18 @@ bool str_start(str s, str start)
 	s.len = start.len;
 	return str_cmp(s, start) == 0;
 }
+
+str str_intro(char *c)
+{
+	usize i = 0;
+	while (c[i] != '\0')
+		i++;
+	return (str) { i, c };
+}
+
+str str_clone(str s)
+{
+	str c = { s.len, malloc(s.len) };
+	memcpy(c.data, s.data, s.len);
+	return c;
+}

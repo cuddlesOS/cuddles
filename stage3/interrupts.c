@@ -122,7 +122,7 @@ static void dump_frame(interrupt_frame *frame)
 
 	usize f = 0;
 	for (usize i = 0; i < 63; i++) {
-		bool has_name = f < sizeof flags / sizeof *flags && flags[f].bit == i;
+		bool has_name = f < LEN(flags) && flags[f].bit == i;
 
 		if (frame->rflags & ((u64) 1 << i)) {
 			if (has_name)
