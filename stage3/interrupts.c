@@ -59,7 +59,7 @@ void interrupt_handler(interrupt_frame *frame)
 		// TODO: possible race condition due to printing here
 		// when exception happens in printing code itself
 
-		if (exception[frame->which].data != nil) {
+		if (exception[frame->which].data == nil) {
 			print(S("Unknown Exception "));
 			print_dec(frame->which);
 		} else {
