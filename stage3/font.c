@@ -93,7 +93,7 @@ static void render_char(u8 c)
 	}
 }
 
-static void fix_cursor()
+static void update_cursor()
 {
 	while (cursor_x >= screen_width) {
 		cursor_x -= screen_width;
@@ -102,28 +102,34 @@ static void fix_cursor()
 
 	if (cursor_y >= screen_height)
 		font_clear_screen();
+
+	gfx_set_area(cursor_x * outer_width, cursor_y * outer_height,
+		outer_width, outer_height, 0xFFFFFFFF);
 }
 
 void print_char(char c)
 {
 	switch (c) {
 		case '\n':
+			render_char(' ');
 			cursor_y++;
 			cursor_x = 0;
 			break;
 
-		case '\t':
+		/*case '\t':
+			render_char(' ');
 			cursor_x = (cursor_x + TAB_SIZE) & ~(TAB_SIZE - 1);
-			break;
+			break;*/
 
 		case '\b':
 			if (cursor_x > 0) {
-				cursor_x--;
 				render_char(' ');
+				cursor_x--;
 			}
 			break;
 
 		case '\r':
+			render_char(' ');
 			cursor_x = 0;
 			break;
 
@@ -136,8 +142,7 @@ void print_char(char c)
 			break;
 
 		case '\f':
-			cursor_y = 0;
-			cursor_x = 0;
+			font_clear_screen();
 			break;
 
 		default:
@@ -145,7 +150,7 @@ void print_char(char c)
 			cursor_x++;
 	}
 
-	fix_cursor();
+	update_cursor();
 }
 
 void print(str line)
