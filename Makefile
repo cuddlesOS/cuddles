@@ -37,6 +37,7 @@ STAGE3 = \
 	stage3/version.o
 
 PAD_BOUNDARY = pad() { truncate -s $$(echo "($$(du -b $$1 | cut -f1)+$$2-1)/$$2*$$2" | bc) $$1; }; pad
+DISAS = objdump -b binary -D -M intel -m i386:x86-64 stage3.bin --adjust-vma 0x9000
 
 cuddles.img: stage1.bin stage2.bin stage3.bin fs.tar
 	cat stage{1,2,3}.bin fs.tar > cuddles.img
@@ -50,9 +51,14 @@ stage2.bin: stage2/main.asm stage2/mmap.asm stage2/paging.asm stage2/vesa.asm st
 	nasm -f bin stage2/main.asm -o stage2.bin
 	truncate -s 4608 stage2.bin
 
-stage3.bin: $(STAGE3) stage3.ld
-	ld $(STAGE3) -T stage3.ld -Map=stage3.map
+stage3.bin fs/dbg/kernel.map: $(STAGE3) stage3.ld
+	mkdir -p fs/dbg/
+	ld $(STAGE3) -T stage3.ld -Map=fs/dbg/kernel.map
 	$(PAD_BOUNDARY) stage3.bin 512
+
+fs/dbg/kernel.dis.asm: stage3.bin
+	mkdir -p fs/dbg/
+	$(DISAS) > fs/dbg/kernel.dis.asm
 
 stage3/%.o: stage3/%.asm
 	nasm -f elf64 $< -o $@
@@ -72,10 +78,10 @@ stage3/version.$(GIT_VERSION).c:
 stage3/isr.asm: stage3/isr.lua
 	lua stage3/isr.lua > stage3/isr.asm
 
-fs.tar: $(shell find fs | sed 's/ /\\ /g')
+fs.tar: $(shell find fs | sed 's/ /\\ /g') fs/dbg/kernel.map fs/dbg/kernel.dis.asm
 	cd fs && tar --format=ustar -cf ../fs.tar *
 
-.PHONY: run clean flash disas map qemu bochs
+.PHONY: run clean flash disas qemu bochs
 
 bochs: cuddles.img
 	rm -f cuddles.img.lock
@@ -90,13 +96,10 @@ qemu_slow: cuddles.img
 run: qemu
 
 clean:
-	rm -rf stage3/*.o *.bin *.img *.map stage3/{isr.asm,version.c,version.*.c} fs.tar
+	rm -rf stage3/*.o *.bin *.img stage3/{isr.asm,version.c,version.*.c} fs.tar fs/dbg
 
 flash: cuddles.img
 	dd if=cuddles.img of=$(DEV)
 
 disas: stage3.bin
-	objdump -b binary -D -M intel -m i386:x86-64 stage3.bin --adjust-vma 0x9000 --disassembler-color=on
-
-map: stage3.bin
-	cat stage3.map
+	$(DISAS) --disassembler-color=on

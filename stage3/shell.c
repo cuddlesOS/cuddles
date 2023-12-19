@@ -101,7 +101,7 @@ static void cmd_run(str arg)
 	} else {
 		str iter = f;
 		for (;;) {
-			str cmd = str_split_walk(&iter, S("\n"));
+			str cmd = str_walk(&iter, S("\n"));
 			if (cmd.data == nil)
 				break;
 			shell_run_cmd(cmd);
@@ -189,7 +189,7 @@ static command registry[] = {
 
 void shell_run_cmd(str cmd)
 {
-	str prog = str_split_walk(&cmd, S(" \t"));
+	str prog = str_walk(&cmd, S(" \t"));
 
 	if (prog.len == 0)
 		return;

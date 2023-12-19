@@ -2,6 +2,7 @@
 *.o
 *.img
 *.map
+*.dis.asm
 bx_enh_dbg.ini
 stage3/isr.asm
 fs.tar

@@ -116,10 +116,10 @@ void print_char(char c)
 			cursor_x = 0;
 			break;
 
-		/*case '\t':
+		case '\t':
 			render_char(' ');
 			cursor_x = (cursor_x + TAB_SIZE) & ~(TAB_SIZE - 1);
-			break;*/
+			break;
 
 		case '\b':
 			if (cursor_x > 0) {

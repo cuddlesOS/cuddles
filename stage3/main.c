@@ -12,6 +12,8 @@
 #include "ps2.h"
 #include "thread.h"
 #include "shell.h"
+#include "fs.h"
+#include "gfx.h"
 
 char keymap[256] = { '\0' };
 
@@ -52,6 +54,9 @@ void keyboard_handler()
 		}
 	}
 }
+
+str dbg_map = NILS;
+str dbg_disas = NILS;
 
 void kmain()
 {
@@ -97,12 +102,21 @@ void kmain()
 		print(S("\n"));
 	}
 
+	print(S("gfx framebuffer at "));
+	print_hex(gfx_info->framebuffer);
+	print(S("-"));
+	print_hex((u64) gfx_info->framebuffer + gfx_info->pitch * gfx_info->height);
+	print(S("\n"));
+
 	interrupts_init();
 	pic_init();
 	thread_init();
 
 	ata_init();
 	ps2_init();
+
+	dbg_map = fs_read(S("dbg/kernel.map"));
+	dbg_disas = fs_read(S("dbg/kernel.dis.asm"));
 
 	shell_run_cmd(S("run init"));
 

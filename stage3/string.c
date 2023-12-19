@@ -39,22 +39,22 @@ usize str_parse_num(str s, u8 base, u64 *x)
 		if (c >= '0' && c <= '9')
 			d = c - '0';
 		else if (c >= 'a' && c <= 'z')
-			d = c - 'a';
-		else if (c >= 'A' && c <= 'z')
-			d = c - 'A';
+			d = c - 'a' + 10;
+		else if (c >= 'A' && c <= 'Z')
+			d = c - 'A' + 10;
 		else
 			return i;
 
 		if (d >= base)
 			return i;
 
-		*x = *x * base + d;
+		*x = (*x) * base + d;
 	}
 
     return s.len;
 }
 
-str str_split_walk(str *s, str sep)
+str str_walk(str *s, str sep)
 {
 	if (s->len == 0)
 		return NILS;
@@ -62,11 +62,32 @@ str str_split_walk(str *s, str sep)
 	usize x = str_find(*s, sep);
 	usize o = x + (x < s->len);
 
-	s->len -= o;
-	s->data += o;
+	*s = str_advance(*s, o);
 
 	if (x == 0)
-		return str_split_walk(s, sep);
+		return str_walk(s, sep);
 	else
 		return (str) { x, s->data - o };
+}
+
+str str_eat(str s, str tokens)
+{
+	while (s.len > 0 && match_char(s.data[0], tokens))
+		s = str_advance(s, 1);
+	return s;
+}
+
+str str_advance(str s, usize x)
+{
+	s.len -= x;
+	s.data += x;
+	return s;
+}
+
+bool str_start(str s, str start)
+{
+	if (s.len < start.len)
+		return false;
+	s.len = start.len;
+	return str_cmp(s, start) == 0;
 }
