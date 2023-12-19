@@ -137,6 +137,27 @@ static void cmd_clear(str arg)
 	font_clear_screen();
 }
 
+static void cmd_love(str arg)
+{
+	if (arg.len == 0)
+		arg = S("anna");
+
+	str f = fs_read(S("uwu.txt"));
+	if (f.data == nil) {
+		print(S("love: missing file uwu.txt\n"));
+	} else {
+		isize start = 172-arg.len/2;
+		if (start < 0 || start + arg.len > f.len) {
+			print(S("love: argument too long (owo it's too big for me)\n"));
+		} else {
+			memcpy(f.data+start, arg.data, arg.len);
+			print(f);
+		}
+
+		free(f.data);
+	}
+}
+
 typedef struct {
 	str name;
 	void (*fn)(str arg);
@@ -152,6 +173,7 @@ static command registry[] = {
 	{ S("run"),      &cmd_run      },
 	{ S("loadkeys"), &cmd_loadkeys },
 	{ S("clear"),    &cmd_clear    },
+	{ S("love"),     &cmd_love     },
 };
 
 void shell_run_cmd(str cmd)
