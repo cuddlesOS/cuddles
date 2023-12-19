@@ -82,12 +82,11 @@ void kmain()
 	// heap init
 	MMAP heap_add_region(mreg);
 
-	// gfx init
-	gfx_set_area(0, 0, gfx_info->width, gfx_info->height, 0xFF000000);
-
+	// font init
 	font_init();
 	font_set_size(1);
 	font_load_classic();
+	font_clear_screen();
 
 	// memory map
 	print(S("memory map:\n"));

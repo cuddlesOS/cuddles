@@ -68,6 +68,12 @@ void font_load_classic()
 	free(cfont);
 }
 
+void font_clear_screen()
+{
+	cursor_x = cursor_y = 0;
+	gfx_set_area(0, 0, gfx_info->width, gfx_info->height, 0xFF000000);
+}
+
 static void render_char(u8 c)
 {
 	u16 base_x = cursor_x * outer_width;
@@ -94,10 +100,8 @@ static void fix_cursor()
 		cursor_y++;
 	}
 
-	while (cursor_y >= screen_height) {
-		gfx_set_area(0, 0, gfx_info->width, gfx_info->height, 0xFF000000);
-		cursor_y -= screen_height;
-	}
+	if (cursor_y >= screen_height)
+		font_clear_screen();
 }
 
 void print_char(char c)

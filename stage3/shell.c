@@ -131,6 +131,12 @@ static void cmd_loadkeys(str arg)
 	}
 }
 
+static void cmd_clear(str arg)
+{
+	(void) arg;
+	font_clear_screen();
+}
+
 typedef struct {
 	str name;
 	void (*fn)(str arg);
@@ -145,6 +151,7 @@ static command registry[] = {
 	{ S("lspci"),    &cmd_lspci    },
 	{ S("run"),      &cmd_run      },
 	{ S("loadkeys"), &cmd_loadkeys },
+	{ S("clear"),    &cmd_clear    },
 };
 
 void shell_run_cmd(str cmd)

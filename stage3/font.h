@@ -7,6 +7,7 @@ void font_init();
 void font_set_size(u16 size);
 void font_load_blob(const void *blob);
 void font_load_classic();
+void font_clear_screen();
 
 void print(str line);
 void print_char(char c);
