@@ -2,7 +2,7 @@ SHELL:=/bin/bash
 
 # -mgeneral-regs-only only needed for interrupt handlers
 
-CFLAGS:= \
+override CFLAGS += \
 	-nostdlib \
 	-nostdinc \
 	-fno-builtin \
