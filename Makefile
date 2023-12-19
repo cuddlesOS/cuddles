@@ -32,7 +32,8 @@ STAGE3 = \
 	stage3/yield.o \
 	stage3/ps2.o \
 	stage3/thread.o \
-	stage3/shell.o
+	stage3/shell.o \
+	stage3/version.o
 
 PAD_BOUNDARY = pad() { truncate -s $$(echo "($$(du -b $$1 | cut -f1)+$$2-1)/$$2*$$2" | bc) $$1; }; pad
 
@@ -58,6 +59,15 @@ stage3/%.o: stage3/%.asm
 stage3/%.o: stage3/%.c
 	gcc $(CFLAGS) -c $< -o $@
 
+GIT_VERSION := $(shell git describe --tags 2>/dev/null || git rev-parse --short HEAD)
+
+stage3/version.c: stage3/version.$(GIT_VERSION).c
+	cp $< $@
+
+stage3/version.$(GIT_VERSION).c:
+	rm -f stage3/version.*.c
+	echo -e "#include \"def.h\"\nstr version = S(\"$(GIT_VERSION)\");" > $@
+
 stage3/isr.asm: stage3/isr.lua
 	lua stage3/isr.lua > stage3/isr.asm
 
@@ -76,7 +86,7 @@ qemu: cuddles.img
 run: qemu
 
 clean:
-	rm -rf stage3/*.o *.bin *.img *.map stage3/isr.asm fs.tar
+	rm -rf stage3/*.o *.bin *.img *.map stage3/{isr.asm,version.c,version.*.c} fs.tar
 
 flash: cuddles.img
 	dd if=cuddles.img of=$(DEV)

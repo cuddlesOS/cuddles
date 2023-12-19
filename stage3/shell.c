@@ -158,6 +158,16 @@ static void cmd_love(str arg)
 	}
 }
 
+extern str version;
+
+static void cmd_uname(str arg)
+{
+	(void) arg;
+	print(S("cuddles "));
+	print(version);
+	print(S("\n"));
+}
+
 typedef struct {
 	str name;
 	void (*fn)(str arg);
@@ -174,6 +184,7 @@ static command registry[] = {
 	{ S("loadkeys"), &cmd_loadkeys },
 	{ S("clear"),    &cmd_clear    },
 	{ S("love"),     &cmd_love     },
+	{ S("uname"),    &cmd_uname    },
 };
 
 void shell_run_cmd(str cmd)
