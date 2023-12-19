@@ -25,12 +25,6 @@ void free(void *ptr)
 	h->next = next;
 }
 
-static void defragment()
-{
-	//usize num_blocks = 0;
-	panic(S("defragment not implemented"));
-}
-
 void *try_malloc(usize size)
 {
 	for (Header *prev = free_ptr;; prev = prev->next) {
@@ -63,10 +57,6 @@ void *try_malloc(usize size)
 void *malloc(usize size)
 {
 	void *p;
-
-	// p = try_malloc(size);
-	// if (p) return p;
-	// defragment();
 
 	p = try_malloc(size);
 	if (p) return p;
