@@ -107,7 +107,7 @@ void kmain()
 	ata_init();
 	ps2_init();
 
-	shell_run_file(S("init"));
+	shell_run_cmd(S("run init"));
 
 	thread *keyboard_thread = thread_create(S("keyboard"), &keyboard_handler);
 	irq_services[1] = keyboard_thread;

@@ -4,6 +4,5 @@
 #include "def.h"
 
 void shell_run_cmd(str arg);
-void shell_run_file(str arg);
 
 #endif

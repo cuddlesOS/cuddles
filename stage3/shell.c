@@ -92,7 +92,23 @@ static void cmd_lspci(str arg)
 
 static void cmd_run(str arg)
 {
-	shell_run_file(arg);
+	str f = fs_read(arg);
+
+	if (f.data == nil) {
+		print(S("run: file not found: "));
+		print(arg);
+		print(S("\n"));
+	} else {
+		str iter = f;
+		for (;;) {
+			str cmd = str_split_walk(&iter, S("\n"));
+			if (cmd.data == nil)
+				break;
+			shell_run_cmd(cmd);
+		}
+
+		free(f.data);
+	}
 }
 
 extern char keymap[256];
@@ -148,25 +164,4 @@ void shell_run_cmd(str cmd)
 	print(S("shell: unknown command: "));
 	print(prog);
 	print(S("\n"));
-}
-
-void shell_run_file(str filename)
-{
-	str f = fs_read(filename);
-
-	if (f.data == nil) {
-		print(S("shell: file not found: "));
-		print(filename);
-		print(S("\n"));
-	} else {
-		str iter = f;
-		for (;;) {
-			str cmd = str_split_walk(&iter, S("\n"));
-			if (cmd.data == nil)
-				break;
-			shell_run_cmd(cmd);
-		}
-
-		free(f.data);
-	}
 }
