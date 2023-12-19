@@ -33,13 +33,18 @@ void keyboard_handler()
 
 		char c = keymap[e->data.scancode];
 		if (c != '\0') {
-			print_char(c);
-
-			if (c == '\n') {
+			if (c == '\b') {
+				if (buffer.len > 0) {
+					print_char(c);
+					buffer.len--;
+				}
+			} else if (c == '\n') {
+				print_char(c);
 				shell_run_cmd(buffer);
 				buffer.len = 0;
 				print(S("$ "));
 			} else {
+				print_char(c);
 				if (buffer.len == cap)
 					buffer.data = realloc(buffer.data, cap = cap ? cap*2 : 1);
 				buffer.data[buffer.len++] = c;

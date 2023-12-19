@@ -113,8 +113,10 @@ void print_char(char c)
 			break;
 
 		case '\b':
-			if (cursor_x > 0)
+			if (cursor_x > 0) {
 				cursor_x--;
+				render_char(' ');
+			}
 			break;
 
 		case '\r':
