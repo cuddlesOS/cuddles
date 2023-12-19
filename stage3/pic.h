@@ -26,6 +26,7 @@ void disable_irqs();
 void enable_irqs();
 void unmask_irq(u8 lane);
 void ack_irq(u8 lane);
+void wait_irq();
 void pic_init();
 
 #endif

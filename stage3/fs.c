@@ -4,7 +4,7 @@
 #include "memory.h"
 #include "heap.h"
 
-file fs_read(const char *filename)
+str fs_read(str filename)
 {
 	u64 start = (*(u32 *) (0x1000-10-8))/512;
 
@@ -13,16 +13,17 @@ file fs_read(const char *filename)
 
 		if (memcmp(info+257, "ustar", 5) != 0) {
 			free(info);
-			return (file) { .len = 0, .data = nil };
+			return NILS;
 		}
 
-		u8 *infop = info+124;
-		usize fsize = parse_num(&infop, 8, 11);
+		usize fsize;
+		str_parse_num((str) { 11, (char *) info+124 }, 8, &fsize);
+
 		usize fsect = (fsize+511)/512;
 
-		if (memcmp(info, filename, strlen(filename) + 1) == 0) {
+		if (memcmp(info, filename.data, filename.len) == 0 && info[filename.len] == '\0') {
 			free(info);
-			return (file) { .len = fsize, .data = ata_read_full(start+1, fsect) };
+			return (str) { .len = fsize, .data = ata_read_full(start+1, fsect) };
 		} else {
 			free(info);
 			start += 1 + fsect;

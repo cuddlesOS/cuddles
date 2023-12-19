@@ -30,11 +30,11 @@ void pci_enumerate()
 		outl(PCI_CONFIG_ADDRESS, BITCAST(addr, pci_config_addr, u32));
 		u32 x = inl(PCI_CONFIG_DATA);
 		if (x != 0xFFFFFFFF) {
-			print("bus: "); print_num(bus, 16, 2);
-			print(" dev: "); print_num(dev, 16, 1);
-			print(" vendor: "); print_num(x & 0xFFFF, 16, 4);
-			print(" id: "); print_num((x >> 16) & 0xFFFF, 16, 4);
-			print("\n");
+			print(S("bus: ")); print_num_pad(bus, 16, 2, ' ');
+			print(S(" dev: ")); print_num_pad(dev, 16, 1, ' ');
+			print(S(" vendor: ")); print_num_pad(x & 0xFFFF, 16, 4, ' ');
+			print(S(" id: ")); print_num_pad((x >> 16) & 0xFFFF, 16, 4, ' ');
+			print(S("\n"));
 		}
 	}
 }

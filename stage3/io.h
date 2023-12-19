@@ -39,11 +39,6 @@ static inline u32 inl(u16 port)
 	return val;
 }
 
-static inline void hlt()
-{
-	asm volatile("hlt");
-}
-
 typedef enum {
 	IO_PIC1_CTRL = 0x20,
 	IO_PIC1_DATA = 0x21,

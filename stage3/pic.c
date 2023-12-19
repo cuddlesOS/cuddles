@@ -19,6 +19,11 @@ void ack_irq(u8 lane)
 	outb(IO_PIC1_CTRL, 1 << 5);
 }
 
+void wait_irq()
+{
+	asm volatile("hlt");
+}
+
 void unmask_irq(u8 lane)
 {
 	u8 port = IO_PIC1_DATA;

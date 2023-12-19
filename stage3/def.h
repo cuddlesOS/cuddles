@@ -24,4 +24,12 @@ typedef u8 bool;
 
 #define BITCAST(expr, from, to) (((union { from f; to t; }) { .f = expr }).t)
 
+typedef struct {
+	usize len;
+	char *data;
+} str;
+
+#define S(x) ((str) { sizeof (x) - 1, (x) })
+#define NILS ((str) { 0, nil })
+
 #endif

@@ -3,10 +3,9 @@
 
 #include "def.h"
 
-u64 parse_num(u8 **str, u8 base, isize size);
-usize find_char(const char *str, char chr);
-usize strlen(const char *str);
-int strcmp(const char *p1, const char *p2);
-int strncmp(const char *p1, const char *p2, usize size);
+isize str_cmp(str s1, str s2);
+usize str_find(str s, str tokens);
+usize str_parse_num(str s, u8 base, u64 *x);
+str str_split_walk(str *s, str sep);
 
 #endif

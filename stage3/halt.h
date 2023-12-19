@@ -1,7 +1,9 @@
 #ifndef HALT_H
 #define HALT_H
 
-void halt();
-void panic(char *msg);
+#include "def.h"
+
+void freeze();
+void panic(str msg);
 
 #endif

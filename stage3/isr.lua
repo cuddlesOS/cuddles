@@ -36,7 +36,7 @@ isr_common:
 	push   rax
 
 	cld
-	lea rdi, [rsp+8*9]
+	mov rdi, rsp
 	call interrupt_handler
 
 	pop    rax

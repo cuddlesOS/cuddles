@@ -3,102 +3,115 @@
 #include "font.h"
 #include "heap.h"
 #include "pic.h"
+#include "thread.h"
+#include "io.h"
 
 extern u64 idt_entries[256]; // isr.asm
 
-typedef struct {
-	u64 which;
-	u64 error_code;
-	// automatically pushed
-	u64 rip;
-	u64 cs;
-	u64 rflags;
-	u64 rsp;
-	u64 ss;
+typedef struct __attribute__((packed)) {
+	u64 rax, rdx, rcx, rsi, rdi, r8, r9, r10, r11;
+	u64 which, error_code;
+	u64 rip, cs, rflags, rsp, ss;
 } interrupt_frame;
 
-static const char *exception[32] = {
-	"Division Error",
-	"Debug",
-	"Non-maskable Interrupt",
-	"Breakpoint",
-	"Overflow",
-	"Bound Range Exceeded",
-	"Invalid Opcode",
-	"Device Not Available",
-	"Double Fault",
-	"Coprocessor Segment Overrun",
-	"Invalid TSS",
-	"Segment Not Present",
-	"Stack-Segment Fault",
-	"General Protection Fault",
-	"Page Fault",
-	nil,
-	"x87 Floating-Point Exception",
-	"Alignment Check",
-	"Machine Check",
-	"SIMD Floating-Point Exception",
-	"Virtualization Exception",
-	"Control Protection Exception",
-	nil, nil, nil, nil, nil, nil,
-	"Hypervisor Injection Exception",
-	"VMM Communication Exception",
-	"Security Exception",
-	nil,
+static str exception[32] = {
+	S("Division Error"),
+	S("Debug"),
+	S("Non-maskable Interrupt"),
+	S("Breakpoint"),
+	S("Overflow"),
+	S("Bound Range Exceeded"),
+	S("Invalid Opcode"),
+	S("Device Not Available"),
+	S("Double Fault"),
+	S("Coprocessor Segment Overrun"),
+	S("Invalid TSS"),
+	S("Segment Not Present"),
+	S("Stack-Segment Fault"),
+	S("General Protection Fault"),
+	S("Page Fault"),
+	NILS,
+	S("x87 Floating-Point Exception"),
+	S("Alignment Check"),
+	S("Machine Check"),
+	S("SIMD Floating-Point Exception"),
+	S("Virtualization Exception"),
+	S("Control Protection Exception"),
+	NILS, NILS, NILS, NILS, NILS, NILS,
+	S("Hypervisor Injection Exception"),
+	S("VMM Communication Exception"),
+	S("Security Exception"),
+	NILS,
 };
 
 static void dump_frame(interrupt_frame *frame)
 {
-	print("rip = "); print_num(frame->rip, 16, 0); print("\n");
-	print("cs = "); print_num(frame->cs, 16, 0); print("\n");
-	print("rflags = "); print_num(frame->rflags, 16, 0); print("\n");
-	print("rsp = "); print_num(frame->rsp, 16, 0); print("\n");
-	print("ss = "); print_num(frame->ss, 16, 0); print("\n");
+	print(S("rip = ")); print_hex(frame->rip); print_char('\n');
+	print(S("cs = ")); print_hex(frame->cs); print_char('\n');
+	print(S("rflags = ")); print_hex(frame->rflags); print_char('\n');
+	print(S("rsp = ")); print_hex(frame->rsp); print_char('\n');
+	print(S("ss = ")); print_hex(frame->ss); print_char('\n');
 }
 
 void interrupt_handler(interrupt_frame *frame)
 {
 	if (frame->which < 32) {
-		if (exception[frame->which] == nil) {
-			print("Unknown Exception ");
-			print_num(frame->which, 10, 0);
+		// TODO: possible race condition due to printing here
+		// when exception happens in printing code itself
+
+		if (exception[frame->which].data != nil) {
+			print(S("Unknown Exception "));
+			print_dec(frame->which);
 		} else {
 			print(exception[frame->which]);
 		}
-		print("\n");
+		print_char('\n');
 
 		if (frame->which == 13) {
-			const char *bits[8] = {
-				"present",
-				"write",
-				"user",
-				"reserved_write",
-				"instruction_fetch",
-				"protection_key",
-				"shadow_stack",
-				"software_guard_extensions",
+			str bits[8] = {
+				S("present"),
+				S("write"),
+				S("user"),
+				S("reserved_write"),
+				S("instruction_fetch"),
+				S("protection_key"),
+				S("shadow_stack"),
+				S("software_guard_extensions"),
 			};
 
 			u8 err = frame->error_code;
 
 			for (int i = 0; i < 8; i++) {
-				print(bits[i]); print(" = "); print((err & 1) ? "true\n" : "false\n");
+				print(bits[i]); print(S(" = ")); print((err & 1) ? S("true\n") : S("false\n"));
 				err >>= 1;
 			}
 		} else {
-			print("error_code = "); print_num(frame->error_code, 10, 0); print("\n");
+			print(S("error_code = ")); print_dec(frame->error_code); print_char('\n');
 		}
 
 		dump_frame(frame);
-
-		halt();
+		freeze();
 	} else if (frame->which-32 < 16) {
-		u64 irq = frame->which-32;
-		print("IRQ "); print_num(irq, 10, 0); print("\n");
-		ack_irq(irq);
+		if (queue_write.len == queue_write.cap) {
+			panic(S("queue exceeded\n"));
+			/*
+			// TODO: malloc would cause a race condition
+			queue_write.cap = queue_write.cap == 0 ? 1 : queue_write.cap * 2;
+			queue_write.data = realloc(queue_write.data, queue_write.cap);
+			*/
+		}
+
+		event *e = &queue_write.data[queue_write.len++];
+		e->irq = frame->which-32;
+
+		if (e->irq == 1) {
+			e->data.scancode = inb(IO_PS2_DATA);
+		}
+
+		ack_irq(e->irq);
 	} else {
-		print("Spurious Interrupt "); print_num(frame->which, 10, 0); print("\n");
-		dump_frame(frame);
+		// print("Spurious Interrupt "); print_num(frame->which, 10, 0); print("\n");
+		// dump_frame(frame);
 	}
 }
 
@@ -109,7 +122,7 @@ typedef struct {
 
 idt_descriptor idtr;
 
-void init_interrupts()
+void interrupts_init()
 {
 	typedef struct {
 	   u16 offset_1;

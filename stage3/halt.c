@@ -1,14 +1,15 @@
 #include "halt.h"
 #include "font.h"
+#include "pic.h"
 
-void halt()
+void freeze()
 {
 	for (;;)
-		asm volatile("hlt");
+		wait_irq();
 }
 
-void panic(char *msg)
+void panic(str msg)
 {
 	print(msg);
-	halt();
+	freeze();
 }

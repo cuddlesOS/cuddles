@@ -28,7 +28,11 @@ STAGE3 = \
 	stage3/ata.o \
 	stage3/string.o \
 	stage3/pci.o \
-	stage3/fs.o
+	stage3/fs.o \
+	stage3/yield.o \
+	stage3/ps2.o \
+	stage3/thread.o \
+	stage3/shell.o
 
 PAD_BOUNDARY = pad() { truncate -s $$(echo "($$(du -b $$1 | cut -f1)+$$2-1)/$$2*$$2" | bc) $$1; }; pad
 
@@ -52,7 +56,7 @@ stage3/%.o: stage3/%.asm
 	nasm -f elf64 $< -o $@
 
 stage3/%.o: stage3/%.c
-	cc $(CFLAGS) -c $< -o $@
+	gcc $(CFLAGS) -c $< -o $@
 
 stage3/isr.asm: stage3/isr.lua
 	lua stage3/isr.lua > stage3/isr.asm

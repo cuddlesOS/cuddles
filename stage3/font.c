@@ -142,37 +142,41 @@ void print_char(char c)
 	fix_cursor();
 }
 
-void print(const char *line)
+void print(str line)
 {
-	while (*line != '\0')
-		print_char(*line++);
+	for (usize i = 0; i < line.len; i++)
+		print_char(line.data[i]);
 }
 
-void printn(const char *line, usize len)
+void print_num_pad(u64 x, u8 base, u8 pad_len, char pad_char)
 {
-	for (usize i = 0; i < len; i++)
-		print_char(*line++);
-}
-
-void print_padded(u64 x, u8 base, u8 pad_len, char pad_char)
-{
-	char digit[65];
-	char *ptr = &digit[64];
-	*ptr = '\0';
+	char buffer[64];
+	usize idx = 64;
 
 	do {
 		u8 digit = x % base;
-		*--ptr = digit + (digit < 10 ? '0' : ('A' - 10));
+		buffer[--idx] = digit + (digit < 10 ? '0' : ('A' - 10));
 		x /= base;
 	} while (x != 0);
 
-	while (ptr > digit + 64 - pad_len)
-		*--ptr = pad_char;
+	while (idx > (usize) (64 - pad_len))
+		buffer[--idx] = pad_char;
 
-	print(ptr);
+	print((str) { 64 - idx, &buffer[idx] });
 }
 
-void print_num(u64 x, u8 base, u8 pad)
+void print_num(u64 x, u8 base)
 {
-	print_padded(x, base, pad, ' ');
+	print_num_pad(x, base, 0, ' ');
 }
+
+void print_dec(u64 x)
+{
+	print_num(x, 10);
+}
+
+void print_hex(u64 x)
+{
+	print_num(x, 16);
+}
+

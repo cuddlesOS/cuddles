@@ -1,19 +1,39 @@
 #include "string.h"
+#include "memory.h"
+#include "heap.h"
 
-usize find_char(const char *str, char chr)
+isize str_cmp(str s1, str s2)
 {
-	usize ret = 0;
-	while (*str != chr && *str != '\0')
-		str++, ret++;
-	return ret;
+	if (s1.len != s2.len)
+		return (isize) s1.len - (isize) s2.len;
+
+	return memcmp(s1.data, s2.data, s1.len);
 }
 
-u64 parse_num(u8 **str, u8 base, isize size)
+static bool match_char(char c, str tokens)
 {
-	u64 x = 0;
+	for (usize t = 0; t < tokens.len; t++)
+		if (c == tokens.data[t])
+			return true;
 
-	while (size-- != 0) {
-		u8 c = **str;
+	return false;
+}
+
+usize str_find(str s, str tokens)
+{
+	for (usize i = 0; i < s.len; i++)
+		if (match_char(s.data[i], tokens))
+			return i;
+
+	return s.len;
+}
+
+usize str_parse_num(str s, u8 base, u64 *x)
+{
+	*x = 0;
+
+	for (usize i = 0; i < s.len; i++) {
+		u8 c = s.data[i];
 
 		u64 d;
 		if (c >= '0' && c <= '9')
@@ -23,34 +43,30 @@ u64 parse_num(u8 **str, u8 base, isize size)
 		else if (c >= 'A' && c <= 'z')
 			d = c - 'A';
 		else
-			return x;
+			return i;
 
 		if (d >= base)
-			return x;
+			return i;
 
-		(*str)++;
-		x = x * base + d;
+		*x = *x * base + d;
 	}
 
-    return x;
+    return s.len;
 }
 
-usize strlen(const char *str)
+str str_split_walk(str *s, str sep)
 {
-	return find_char(str, '\0');
-}
+	if (s->len == 0)
+		return NILS;
 
-int strcmp(const char *p1, const char *p2)
-{
-	while (*p1 == *p2 && *p1 != '\0')
-		p1++, p2++;
-	return *p1 - *p2;
-}
+	usize x = str_find(*s, sep);
+	usize o = x + (x < s->len);
 
-int strncmp(const char *p1, const char *p2, usize size)
-{
-	for (usize i = 0; i < size; i++)
-		if (p1[i] != p2[i])
-			return p1[i]-p2[i];
-	return 0;
+	s->len -= o;
+	s->data += o;
+
+	if (x == 0)
+		return str_split_walk(s, sep);
+	else
+		return (str) { x, s->data - o };
 }

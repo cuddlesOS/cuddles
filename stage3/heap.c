@@ -18,7 +18,7 @@ void free(void *ptr)
 	Header *h = ((Header *) ptr) - 1;
 
 	if (h->next != MAGIC)
-		panic("free: invalid pointer");
+		panic(S("free: invalid pointer"));
 
 	Header *next = free_ptr->next;
 	free_ptr->next = h;
@@ -28,7 +28,7 @@ void free(void *ptr)
 static void defragment()
 {
 	//usize num_blocks = 0;
-	panic("defragment not implemented");
+	panic(S("defragment not implemented"));
 }
 
 void *try_malloc(usize size)
@@ -64,13 +64,13 @@ void *malloc(usize size)
 {
 	void *p;
 
-	p = try_malloc(size);
-	if (p) return p;
-	defragment();
+	// p = try_malloc(size);
+	// if (p) return p;
+	// defragment();
 
 	p = try_malloc(size);
 	if (p) return p;
-	panic("out of memory");
+	panic(S("out of memory"));
 
 	return nil;
 }
@@ -83,7 +83,7 @@ void *realloc(void *ptr, usize size)
 	Header *h = ((Header *) ptr) - 1;
 
 	if (h->next != MAGIC)
-		panic("realloc: invalid pointer");
+		panic(S("realloc: invalid pointer"));
 
 	void *new = malloc(size);
 

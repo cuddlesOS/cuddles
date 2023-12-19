@@ -3,11 +3,6 @@
 
 #include "def.h"
 
-typedef struct {
-	usize len;
-	void *data;
-} file;
-
-file fs_read(const char *filename);
+str fs_read(str filename);
 
 #endif

@@ -34,7 +34,7 @@ typedef struct __attribute__((packed)) {
 
 typedef struct {
 	unsigned int bits : 4;
-	bool doll : 1; 
+	bool doll : 1;
 	bool one0 : 1;
 	bool lba : 1;
 	bool one1 : 1;
@@ -48,22 +48,22 @@ void ata_recv(u16 *buffer)
 		if (status.err) {
 			u8 err = inb(IO_ATA0_DATA + ATA_IO_ERR);
 
-			const char *errors[] = {
-				"address mark not found\n",
-				"track zero not found\n",
-				"aborted command\n",
-				"media change request\n",
-				"id not found\n",
-				"media changed\n",
-				"uncorrectable data error\n",
-				"bad block detected\n",
+			str errors[] = {
+				S("address mark not found\n"),
+				S("track zero not found\n"),
+				S("aborted command\n"),
+				S("media change request\n"),
+				S("id not found\n"),
+				S("media changed\n"),
+				S("uncorrectable data error\n"),
+				S("bad block detected\n"),
 			};
 
 			for (int i = 0; i < 8; i++)
 				if (err & (1 << i))
 					print(errors[i]);
-			
-			panic("ata0-witch error\n");
+
+			panic(S("ata0-witch error\n"));
 		} else if (status.drq)
 			break;
 	}
@@ -75,14 +75,14 @@ void ata_recv(u16 *buffer)
 void ata_delay()
 {
 	for (int i = 0; i < 15; i++)
-		inb(IO_ATA0_DATA + ATA_IO_STATUS);	
+		inb(IO_ATA0_DATA + ATA_IO_STATUS);
 }
 
 void ata_init()
 {
 	u8 floating = inb(IO_ATA0_DATA + ATA_IO_STATUS);
 	if (floating == 0xFF)
-		panic("ata0 floating\n");
+		panic(S("ata0 floating\n"));
 
 	outb(IO_ATA0_DATA + ATA_IO_HEAD, BITCAST(((ata_head) {
 		.bits = 0,
@@ -99,19 +99,19 @@ void ata_init()
 
 	u8 status_byte = inb(IO_ATA0_DATA + ATA_IO_STATUS);
 	if (status_byte == 0)
-		panic("no ata0-witch drive\n");
+		panic(S("no ata0-witch drive\n"));
 
 	while (BITCAST(status_byte, u8, ata_status).bsy)
 		status_byte = inb(IO_ATA0_DATA + ATA_IO_STATUS);
 
 	if (inb(IO_ATA0_DATA + ATA_IO_LBA_MID) != 0 || inb(IO_ATA0_DATA + ATA_IO_LBA_HIGH) != 0)
-		panic("ata0-witch is not ATA\n");
+		panic(S("ata0-witch is not ATA\n"));
 
 	u16 *idvec = malloc(256 * sizeof *idvec);
 	ata_recv(idvec);
 
 	if (!(idvec[83] & (1 << 10)))
-		panic("ata0-witch does not support LBA48 mode\n");
+		panic(S("ata0-witch does not support LBA48 mode\n"));
 
 	// u64 lba48_sectors = *(u64 *) &idvec[100];
 	// print_num(lba48_sectors, 10, 0); print("\n");
