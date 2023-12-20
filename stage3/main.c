@@ -14,6 +14,7 @@
 #include "shell.h"
 #include "fs.h"
 #include "gfx.h"
+#include "clock.h"
 
 char keymap[256] = { '\0' };
 
@@ -142,6 +143,9 @@ void kmain()
 	irq_services[1] = keyboard_thread;
 
 	unmask_irq(1);
+	unmask_irq(2);
+	clock_init();
+	thread_resume(nil, keyboard_thread);
 	enable_irqs();
 
 	thread_sched(nil, nil);

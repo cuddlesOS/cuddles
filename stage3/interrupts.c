@@ -1,3 +1,4 @@
+#include "clock.h"
 #include "def.h"
 #include "halt.h"
 #include "font.h"
@@ -195,25 +196,33 @@ void interrupt_handler(interrupt_frame *frame)
 		dump_frame(frame);
 		freeze();
 	} else if (frame->which-32 < 16) {
-		if (queue_write.len == queue_write.cap) {
-			panic(S("queue exceeded\n"));
-			/*
-			// TODO: malloc would cause a race condition
-			queue_write.cap = queue_write.cap == 0 ? 1 : queue_write.cap * 2;
-			queue_write.data = realloc(queue_write.data, queue_write.cap);
-			*/
+		u64 irq = frame->which-32;
+
+		if (irq == 8) {
+			outb(0x70, 0x0C);
+			inb(0x71);
+			monoclock_rtc_time += RTC_RATE;
+		} else {
+			if (queue_write.len == queue_write.cap) {
+				panic(S("queue exceeded\n"));
+				/*
+				// TODO: malloc would cause a race condition
+				queue_write.cap = queue_write.cap == 0 ? 1 : queue_write.cap * 2;
+				queue_write.data = realloc(queue_write.data, queue_write.cap);
+				*/
+			}
+
+			event *e = &queue_write.data[queue_write.len++];
+			e->irq = irq;
+
+			if (e->irq == 1) {
+				e->data.scancode = inb(IO_PS2_DATA);
+			}
 		}
 
-		event *e = &queue_write.data[queue_write.len++];
-		e->irq = frame->which-32;
-
-		if (e->irq == 1) {
-			e->data.scancode = inb(IO_PS2_DATA);
-		}
-
-		ack_irq(e->irq);
+		ack_irq(irq);
 	} else {
-		// print("Spurious Interrupt "); print_num(frame->which, 10, 0); print("\n");
+		// print(S("Spurious Interrupt ")); print_num(frame->which, 10); print(S("\n"));
 		// dump_frame(frame);
 	}
 }
