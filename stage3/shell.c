@@ -8,6 +8,9 @@
 #include "memory.h"
 #include "io.h"
 #include "math.h"
+#include "clock.h"
+#include "pic.h"
+#include "thread.h"
 
 static void cmd_echo(str arg)
 {
@@ -301,27 +304,41 @@ static void cmd_watchdog(str arg)
 	print(S("\n"));
 }
 
+static void cmd_clocktest(str arg)
+{
+	(void) arg;
+	while(1) {
+		print_num(clock_monotonic(), 10);
+		print(S(" "));
+		print_num(clock_monotonic_coarse(), 10);
+		//wait_irq();
+		yield(nil);
+		print(S("\r"));
+	}
+}
+
 typedef struct {
 	str name;
 	void (*fn)(str arg);
 } command;
 
 static command registry[] = {
-	{ S("echo"),     &cmd_echo     },
-	{ S("cat"),      &cmd_cat      },
-	{ S("font"),     &cmd_font     },
-	{ S("fontdemo"), &cmd_fontdemo },
-	{ S("img"),      &cmd_img      },
-	{ S("lspci"),    &cmd_lspci    },
-	{ S("run"),      &cmd_run      },
-	{ S("loadkeys"), &cmd_loadkeys },
-	{ S("clear"),    &cmd_clear    },
-	{ S("love"),     &cmd_love     },
-	{ S("uname"),    &cmd_uname    },
-	{ S("ls"),       &cmd_ls       },
-	{ S("shutdown"), &cmd_shutdown },
-	{ S("cheese"),   &cmd_cheese   },
-	{ S("watchdog"), &cmd_watchdog },
+	{ S("echo"),      &cmd_echo      },
+	{ S("cat"),       &cmd_cat       },
+	{ S("font"),      &cmd_font      },
+	{ S("fontdemo"),  &cmd_fontdemo  },
+	{ S("img"),       &cmd_img       },
+	{ S("lspci"),     &cmd_lspci     },
+	{ S("run"),       &cmd_run       },
+	{ S("loadkeys"),  &cmd_loadkeys  },
+	{ S("clear"),     &cmd_clear     },
+	{ S("love"),      &cmd_love      },
+	{ S("uname"),     &cmd_uname     },
+	{ S("ls"),        &cmd_ls        },
+	{ S("shutdown"),  &cmd_shutdown  },
+	{ S("cheese"),    &cmd_cheese    },
+	{ S("watchdog"),  &cmd_watchdog  },
+	{ S("clocktest"), &cmd_clocktest },
 };
 
 void shell_run_cmd(str cmd)

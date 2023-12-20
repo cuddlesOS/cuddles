@@ -18,6 +18,7 @@ STAGE3_C = \
 	stage3/halt.o \
 	stage3/interrupts.o \
 	stage3/pic.o \
+	stage3/clock.o \
 	stage3/memory.o \
 	stage3/heap.o \
 	stage3/font.o \
