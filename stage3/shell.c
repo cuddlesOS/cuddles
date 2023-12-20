@@ -137,10 +137,18 @@ static void cmd_clear(str arg)
 	font_clear_screen();
 }
 
+int rand()
+{
+	static unsigned long int next = 1;
+
+	next = next * 1103515245 + 12345;
+	return (unsigned int) (next/65535) % 32768;
+}
+
 static void cmd_love(str arg)
 {
 	if (arg.len == 0)
-		arg = S("anna");
+		arg = (rand()%2) ? S("anna") : S("floof");
 
 	str f = fs_read(S("uwu.txt"));
 	if (f.data == nil) {
