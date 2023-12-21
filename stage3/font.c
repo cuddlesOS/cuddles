@@ -3,6 +3,8 @@
 #include "gfx.h"
 #include "heap.h"
 #include "memory.h"
+#include "math.h"
+
 #include "font_builtin.c"
 
 // important: must be a multiple of 2, else code won't work
@@ -197,3 +199,15 @@ void print_hex(u64 x)
 	print_num(x, 16);
 }
 
+void print_dbl(double d, u8 points)
+{
+	if (d < 0) {
+		print_char('-');
+		d = -d;
+	}
+
+	long i = d;
+	print_dec(i);
+	print_char('.');
+	print_num_pad((d - (double) i) * (double) ipow(10, points), 10, points, '0');
+}

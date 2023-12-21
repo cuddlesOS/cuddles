@@ -7,6 +7,7 @@
 #include "pci.h"
 #include "memory.h"
 #include "io.h"
+#include "math.h"
 
 static void cmd_echo(str arg)
 {
@@ -175,14 +176,6 @@ static void cmd_uname(str arg)
 	print(S("cuddles "));
 	print(version);
 	print(S("\n"));
-}
-
-static u64 ipow(u64 b, u64 exp)
-{
-	u64 x = 1;
-	for (u64 i = 0; i < exp; i++)
-		x *= b;
-	return x;
 }
 
 static void print_bytes(usize bytes)
