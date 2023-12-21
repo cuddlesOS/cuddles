@@ -1,7 +1,5 @@
 SHELL:=/bin/bash
 
-# -mgeneral-regs-only only needed for interrupt handlers
-
 override CFLAGS += \
 	-nostdlib \
 	-nostdinc \
@@ -64,6 +62,9 @@ fs/dbg/kernel.dis.asm: stage3.bin
 
 stage3/%.o: stage3/%.asm
 	nasm -f elf64 $< -o $@
+
+stage3/interrupts.o: stage3/interrupts.c
+	gcc $(CFLAGS) -mgeneral-regs-only -c $< -o $@
 
 stage3/%.o: stage3/%.c
 	gcc $(CFLAGS) -c $< -o $@
