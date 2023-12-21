@@ -267,6 +267,40 @@ void cmd_cheese(str arg)
 	free(texture);
 }
 
+struct __attribute__((packed)) {
+	u64 reg;
+	u64 to;
+	u64 from;
+} watchdog_err;
+
+void watchdog();
+
+static void cmd_watchdog(str arg)
+{
+	(void) arg;
+
+	str regs[] = {
+		S("rax"), S("rbx"),
+		S("rcx"), S("rdx"),
+		S("rdi"), S("rsi"),
+		S("rbp"), S("rsp"),
+		S("r8"), S("r9"),
+		S("r10"), S("r11"),
+		S("r12"), S("r13"),
+		S("r14"), S("r15"),
+	};
+
+	watchdog();
+
+	print(S("watchdog: register "));
+	print(regs[watchdog_err.reg]);
+	print(S(" changed from "));
+	print_hex(watchdog_err.from);
+	print(S(" to "));
+	print_hex(watchdog_err.to);
+	print(S("\n"));
+}
+
 typedef struct {
 	str name;
 	void (*fn)(str arg);
@@ -287,6 +321,7 @@ static command registry[] = {
 	{ S("ls"),       &cmd_ls       },
 	{ S("shutdown"), &cmd_shutdown },
 	{ S("cheese"),   &cmd_cheese   },
+	{ S("watchdog"), &cmd_watchdog },
 };
 
 void shell_run_cmd(str cmd)

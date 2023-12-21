@@ -34,7 +34,8 @@ STAGE3_C = \
 STAGE3 = $(STAGE3_C) \
 	stage3/isr.o \
 	stage3/yield.o \
-	stage3/paging.o
+	stage3/paging.o \
+	stage3/watchdog.o
 
 PAD_BOUNDARY = pad() { truncate -s $$(echo "($$(du -b $$1 | cut -f1)+$$2-1)/$$2*$$2" | bc) $$1; }; pad
 DISAS = objdump -b binary -D -M intel -m i386:x86-64 stage3.bin --adjust-vma 0x9000
@@ -80,8 +81,8 @@ GIT_VERSION := $(shell git describe --tags 2>/dev/null || git rev-parse --short 
 stage3/version.c: .version-$(GIT_VERSION)
 	echo -e "#include \"def.h\"\nstr version = S(\"$(GIT_VERSION)\");" > $@
 
-stage3/isr.asm: stage3/isr.lua
-	lua stage3/isr.lua > stage3/isr.asm
+stage3/%.asm: stage3/%.lua
+	lua  $< > $@
 
 stage3/font.c: stage3/font_builtin.c
 
