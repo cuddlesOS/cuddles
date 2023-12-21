@@ -68,11 +68,11 @@ stage3/%.o: stage3/%.c
 
 GIT_VERSION := $(shell git describe --tags 2>/dev/null || git rev-parse --short HEAD)
 
-stage3/version.c: stage3/version.$(GIT_VERSION).c
-	cp $< $@
+.version-$(GIT_VERSION):
+	rm -f .version-*
+	touch $@
 
-stage3/version.$(GIT_VERSION).c:
-	rm -f stage3/version.*.c
+stage3/version.c: .version-$(GIT_VERSION)
 	echo -e "#include \"def.h\"\nstr version = S(\"$(GIT_VERSION)\");" > $@
 
 stage3/isr.asm: stage3/isr.lua
@@ -96,7 +96,7 @@ qemu_slow: cuddles.img
 run: qemu
 
 clean:
-	rm -rf stage3/*.o *.bin *.img stage3/{isr.asm,version.c,version.*.c} fs.tar fs/dbg
+	rm -rf .version-* stage3/*.o *.bin *.img stage3/{isr.asm,version.c} fs.tar fs/dbg
 
 flash: cuddles.img
 	dd if=cuddles.img of=$(DEV)
