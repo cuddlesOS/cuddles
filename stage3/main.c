@@ -110,6 +110,33 @@ void kmain()
 	print_hex((u64) gfx_info->framebuffer + gfx_info->pitch * gfx_info->height);
 	print(S("\n"));
 
+	u32 vendor[4];
+	asm volatile("cpuid":"=a"(vendor[0]),"=b"(vendor[1]),
+		"=c"(vendor[3]),"=d"(vendor[2]):"a"(0));
+
+	print(S("cpu vendor: "));
+	print((str) { 12, (void *) &vendor[1] });
+	print(S("\n"));
+
+	u32 features;
+	asm volatile("cpuid":"=d"(features):"a"(1):"ebx","ecx");
+
+	print(S("cpu features: "));
+	print_num_pad(features, 2, 32, '0');
+	print(S("\n"));
+
+	// enable SSE. long mode demands it is present
+	u64 cr0;
+	asm volatile("mov %%cr0, %0 \n":"=r"(cr0));
+	asm volatile("mov %0, %%cr0"::"r"((cr0 & ~(1 << 2)) | (1 << 1)));
+
+	u64 cr4;
+	asm volatile("mov %%cr4, %0":"=r"(cr4));
+	asm volatile("mov %0, %%cr4"::"r"(cr4 | (1 << 9) | (1 << 10)));
+
+	u16 fpu_cw = 0x37a;
+	asm volatile("fldcw %0"::"m"(fpu_cw));
+
 	interrupts_init();
 	pic_init();
 	thread_init();
@@ -117,7 +144,7 @@ void kmain()
 	ata_init();
 	ps2_init();
 
-	print(S("loading debug info\n"));
+	print(S("loading kernel debug info...\n"));
 	dbg_map = fs_read(S("dbg/kernel.map"));
 	dbg_disas = fs_read(S("dbg/kernel.dis.asm"));
 
