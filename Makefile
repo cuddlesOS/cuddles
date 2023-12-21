@@ -66,6 +66,10 @@ stage3/%.o: stage3/%.asm
 
 stage3/interrupts.o: stage3/interrupts.c
 	gcc $(CFLAGS) -mgeneral-regs-only -c $< -o $@
+stage3/pic.o: stage3/pic.c
+	gcc $(CFLAGS) -mgeneral-regs-only -c $< -o $@
+stage3/init.o: stage3/init.c
+	gcc $(CFLAGS) -mgeneral-regs-only -c $< -o $@
 
 stage3/%.o: stage3/%.c
 	gcc $(CFLAGS) -c $< -o $@
