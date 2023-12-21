@@ -82,6 +82,11 @@ stage3/version.c: .version-$(GIT_VERSION)
 stage3/isr.asm: stage3/isr.lua
 	lua stage3/isr.lua > stage3/isr.asm
 
+stage3/font.c: stage3/font_builtin.c
+
+stage3/font_builtin.c: fs/fonts/ter-u16n.cuddlefont
+	xxd -i $< > $@
+
 fs.tar: $(shell find fs | sed 's/ /\\ /g') fs/dbg/kernel.map fs/dbg/kernel.dis.asm
 	cd fs && tar --format=ustar -cf ../fs.tar *
 
@@ -100,7 +105,7 @@ qemu_slow: cuddles.img
 run: qemu
 
 clean:
-	rm -rf .version-* stage3/*.{o,d} *.bin *.img stage3/{isr.asm,version.c} fs.tar fs/dbg
+	rm -rf .version-* stage3/*.{o,d} *.bin *.img stage3/{isr.asm,version.c,font_builtin.c} fs.tar fs/dbg
 
 flash: cuddles.img
 	dd if=cuddles.img of=$(DEV)

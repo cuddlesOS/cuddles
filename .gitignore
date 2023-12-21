@@ -9,3 +9,4 @@ bx_enh_dbg.ini
 stage3/isr.asm
 fs.tar
 stage3/version.c
+stage3/font_builtin.c

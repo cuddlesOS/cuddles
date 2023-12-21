@@ -88,8 +88,10 @@ void kmain()
 	// font init
 	font_init();
 	font_set_size(1);
-	font_load_classic();
+	font_load_builtin();
 	font_clear_screen();
+
+	print(S("welcome to cuddles\n"));
 
 	// memory map
 	print(S("memory map:\n"));

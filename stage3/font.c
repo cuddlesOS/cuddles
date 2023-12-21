@@ -3,6 +3,7 @@
 #include "gfx.h"
 #include "heap.h"
 #include "memory.h"
+#include "font_builtin.c"
 
 // important: must be a multiple of 2, else code won't work
 #define TAB_SIZE 4
@@ -38,6 +39,11 @@ void font_set_size(u16 size)
 void font_load_blob(const void *blob)
 {
 	memcpy(font, blob, 256*16);
+}
+
+void font_load_builtin()
+{
+	memcpy(font, fs_fonts_ter_u16n_cuddlefont, 256*16);
 }
 
 void font_load_classic()
