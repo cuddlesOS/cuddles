@@ -150,6 +150,8 @@ static FS_WALKER(fs_readdir_walker)
 			// orphan. this shouldn't happen
 			return false;
 	};
+
+	return false;
 }
 
 dir fs_readdir(str path)
