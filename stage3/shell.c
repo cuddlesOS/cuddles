@@ -231,6 +231,42 @@ void cmd_shutdown(str arg)
 	outw(0x604, 0x2000);
 }
 
+void cmd_cheese(str arg)
+{
+	(void) arg;
+
+	const u32 texsize = 400;
+	u32 *texture = malloc(texsize * texsize * sizeof *texture);
+	for (u32 y = 0; y < texsize; y++)
+	for (u32 x = 0; x < texsize; x++) {
+		texture[y*texsize+x] = 0xfff5c92a;
+	}
+
+	int holes = 40 + rand() % 5;
+	for (int i = 0; i < holes; i++) {
+		u32 xo = rand() % texsize;
+		u32 yo = rand() % texsize;
+		i32 radius = 15 + rand() % 5;
+
+		for (i32 xi = -radius; xi <= radius; xi++) {
+			i32 x = xi+xo;
+			if (!(x >= 0 && x < (i32)texsize))
+				continue;
+			double hi = sin(acos((double) xi / (double) radius))*radius;
+			for (i32 yi = -hi; yi <= hi; yi++) {
+				i32 y = yi+yo;
+				if (!(y >= 0 && y < (i32)texsize))
+					continue;
+				texture[y*texsize+x] = 0xff302b24;
+			}
+		}
+	}
+
+	gfx_draw_img(gfx_info->width-texsize, 0, texsize, texsize, texture);
+
+	free(texture);
+}
+
 typedef struct {
 	str name;
 	void (*fn)(str arg);
@@ -250,6 +286,7 @@ static command registry[] = {
 	{ S("uname"),    &cmd_uname    },
 	{ S("ls"),       &cmd_ls       },
 	{ S("shutdown"), &cmd_shutdown },
+	{ S("cheese"),   &cmd_cheese   },
 };
 
 void shell_run_cmd(str cmd)
