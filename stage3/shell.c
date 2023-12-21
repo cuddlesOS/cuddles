@@ -6,6 +6,7 @@
 #include "string.h"
 #include "pci.h"
 #include "memory.h"
+#include "io.h"
 
 static void cmd_echo(str arg)
 {
@@ -228,6 +229,15 @@ static void cmd_ls(str arg)
 		free(d.data);
 }
 
+void cmd_shutdown(str arg)
+{
+	(void) arg;
+
+	// this only works in QEMU currently
+	// TODO: use ACPI to make this portable
+	outw(0x604, 0x2000);
+}
+
 typedef struct {
 	str name;
 	void (*fn)(str arg);
@@ -246,6 +256,7 @@ static command registry[] = {
 	{ S("love"),     &cmd_love     },
 	{ S("uname"),    &cmd_uname    },
 	{ S("ls"),       &cmd_ls       },
+	{ S("shutdown"), &cmd_shutdown },
 };
 
 void shell_run_cmd(str cmd)
