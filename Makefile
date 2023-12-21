@@ -97,11 +97,11 @@ bochs: cuddles.img
 	rm -f cuddles.img.lock
 	echo c | bochs -q
 
-qemu: cuddles.img
-	qemu-system-x86_64 -drive format=raw,file=cuddles.img
+# to qemu slow: make QFLAGS="-icount shift=9,align=on,sleep=on" run
+override QFLAGS += -drive format=raw,file=cuddles.img
 
-qemu_slow: cuddles.img
-	qemu-system-x86_64 -icount shift=9,align=on,sleep=on -drive format=raw,file=cuddles.img
+qemu: cuddles.img
+	qemu-system-x86_64 $(QFLAGS)
 
 run: qemu
 
