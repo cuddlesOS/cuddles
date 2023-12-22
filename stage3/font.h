@@ -3,8 +3,15 @@
 
 #include "def.h"
 
+typedef struct {
+	u16 x,y;
+} term_pos;
+
 void font_init();
 void font_set_size(u16 size);
+void font_set_cursor(term_pos new_cursor);
+term_pos font_get_cursor();
+term_pos font_get_size();
 void font_load_blob(const void *blob);
 void font_load_classic();
 void font_load_builtin();

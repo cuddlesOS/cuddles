@@ -1,6 +1,7 @@
 #include "thread.h"
 #include "heap.h"
 #include "pic.h"
+#include "clock.h"
 
 static thread *current_thread = nil;
 void *thread_sched_stack = nil;
@@ -56,6 +57,7 @@ void thread_sched(yield_arg *arg, void *stack)
 	}
 
 	for (;;) {
+		clock_sync();
 		if (queue_read.len == 0) {
 			disable_irqs();
 

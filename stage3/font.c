@@ -38,6 +38,22 @@ void font_set_size(u16 size)
 	screen_height = gfx_info->height / outer_height;
 }
 
+void font_set_cursor(term_pos new_cursor)
+{
+	cursor_x = new_cursor.x;
+	cursor_y = new_cursor.y;
+}
+
+term_pos font_get_cursor()
+{
+	return (term_pos){cursor_x, cursor_y};
+}
+
+term_pos font_get_size()
+{
+	return (term_pos){screen_width, screen_height};
+}
+
 void font_load_blob(const void *blob)
 {
 	memcpy(font, blob, 256*16);

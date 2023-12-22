@@ -201,6 +201,7 @@ void interrupt_handler(interrupt_frame *frame)
 			outb(0x70, 0x0C);
 			inb(0x71);
 			monoclock_rtc_time += RTC_RATE;
+			monoclock_last_cycles = clock_cycles();
 		} else {
 			if (queue_write.len == queue_write.cap) {
 				panic(S("queue exceeded\n"));
