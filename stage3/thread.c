@@ -18,14 +18,23 @@ void thread_resume(void *ret, thread *t)
 	resume(t->stack, ret);
 }
 
-#define STACK_SIZE 0xffff
+#define STACK_SIZE 0x10000
+
+// aligned on 16-byte boundary
+static void *alloc_stack(void **alloc)
+{
+	usize stack = (usize) malloc(STACK_SIZE+16);
+	if (alloc != nil)
+		*alloc = (void *) stack;
+	stack += 16 - stack % 16;
+	return (void *) stack;
+}
 
 thread *thread_create(str name, void *init)
 {
 	thread *t = malloc(sizeof *t);
 	t->name = name;
-	t->stack_bottom = malloc(STACK_SIZE);
-	t->stack = t->stack_bottom + STACK_SIZE - 8;
+	t->stack = alloc_stack(&t->stack_bottom) + STACK_SIZE - 16;
 	*(void **) t->stack = init;
 	t->stack -= 8*8;
 	return t;
@@ -75,7 +84,7 @@ void thread_sched(yield_arg *arg, void *stack)
 
 void thread_init()
 {
-	thread_sched_stack = malloc(STACK_SIZE);
+	thread_sched_stack = alloc_stack(nil)+STACK_SIZE-8;
 
 	queue_read = (event_queue) { 0, 1024, malloc(1024 * sizeof(event)) };
 	queue_write = (event_queue) { 0, 1024, malloc(1024 * sizeof(event)) };

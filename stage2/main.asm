@@ -44,4 +44,8 @@ long_mode:
 	mov gs, ax
 	mov ss, ax
 
+	; align stack
+	and rsp, ~(0x0f)
+	sub rsp, 8
+
 	; kernel begins here
