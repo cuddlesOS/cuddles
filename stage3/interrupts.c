@@ -150,7 +150,6 @@ static void dump_frame(interrupt_frame *frame)
 	REGS(r10, r11)
 	REGS(r12, r13)
 	REGS(r14, r15)
-	REGS(r14, r15)
 	REGS(ss, cs)
 
 #undef REG
