@@ -9,8 +9,9 @@
 #include "io.h"
 #include "math.h"
 #include "clock.h"
-#include "pic.h"
 #include "thread.h"
+#include "rng.h"
+#include "cheese_demo.h"
 
 static void cmd_echo(str arg)
 {
@@ -142,14 +143,6 @@ static void cmd_clear(str arg)
 	font_clear_screen();
 }
 
-int rand()
-{
-	static unsigned long int next = 1;
-
-	next = next * 1103515245 + 12345;
-	return (unsigned int) (next/65535) % 32768;
-}
-
 static void cmd_love(str arg)
 {
 	if (arg.len == 0)
@@ -237,37 +230,7 @@ void cmd_shutdown(str arg)
 void cmd_cheese(str arg)
 {
 	(void) arg;
-
-	const u32 texsize = 400;
-	u32 *texture = malloc(texsize * texsize * sizeof *texture);
-	for (u32 y = 0; y < texsize; y++)
-	for (u32 x = 0; x < texsize; x++) {
-		texture[y*texsize+x] = 0xfff5c92a;
-	}
-
-	int holes = 40 + rand() % 5;
-	for (int i = 0; i < holes; i++) {
-		u32 xo = rand() % texsize;
-		u32 yo = rand() % texsize;
-		i32 radius = 15 + rand() % 5;
-
-		for (i32 xi = -radius; xi <= radius; xi++) {
-			i32 x = xi+xo;
-			if (!(x >= 0 && x < (i32)texsize))
-				continue;
-			double hi = sin(acos((double) xi / (double) radius))*radius;
-			for (i32 yi = -hi; yi <= hi; yi++) {
-				i32 y = yi+yo;
-				if (!(y >= 0 && y < (i32)texsize))
-					continue;
-				texture[y*texsize+x] = 0xff302b24;
-			}
-		}
-	}
-
-	gfx_draw_img(gfx_info->width-texsize, 0, texsize, texsize, texture);
-
-	free(texture);
+	cheese_demo();
 }
 
 struct __attribute__((packed)) {

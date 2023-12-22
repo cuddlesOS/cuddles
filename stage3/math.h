@@ -18,6 +18,23 @@ static inline double sin(double x)
 	return x;
 }
 
+static inline double cos(double x)
+{
+	asm("fldl %1; fcos; fstpl %0":"=m"(x):"m"(x));
+	return x;
+}
+
+static inline double tan(double x)
+{
+	asm("fldl %1; fptan; fstpl %0; fstpl %0":"=m"(x):"m"(x));
+	return x;
+}
+
+static inline void sincos(double x, double *sin, double *cos)
+{
+	asm("fldl %2; fsincos; fstpl %0; fstpl %1":"=m"(*sin),"=m"(*cos):"m"(x));
+}
+
 static inline double rad(double x)
 {
 	return PI / 180.0 * x;

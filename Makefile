@@ -31,7 +31,10 @@ STAGE3_C = \
 	stage3/ps2.o \
 	stage3/thread.o \
 	stage3/shell.o \
-	stage3/version.o
+	stage3/version.o \
+	stage3/rng.o \
+	stage3/cheese3d.o \
+	stage3/cheese_demo.o
 
 STAGE3 = $(STAGE3_C) \
 	stage3/isr.o \
@@ -105,6 +108,7 @@ bochs: cuddles.img
 	echo c | bochs -q
 
 # to qemu slow: make QFLAGS="-icount shift=9,align=on,sleep=on" run
+# try QFLAGS="-enable-kvm" for better performance
 override QFLAGS += -drive format=raw,file=cuddles.img
 
 qemu: cuddles.img
