@@ -5,6 +5,7 @@ override CFLAGS += \
 	-nostdinc \
 	-fno-builtin \
 	-fno-stack-protector \
+	-mno-red-zone \
 	-nostartfiles \
 	-nodefaultlibs \
 	-Wall \
