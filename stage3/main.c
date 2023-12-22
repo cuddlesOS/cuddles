@@ -145,7 +145,6 @@ void kmain()
 	unmask_irq(1);
 	unmask_irq(2);
 	clock_init();
-	thread_resume(nil, keyboard_thread);
 	enable_irqs();
 
 	thread_sched(nil, nil);
