@@ -15,6 +15,7 @@
 #include "fs.h"
 #include "gfx.h"
 #include "clock.h"
+#include "rng.h"
 
 char keymap[256] = { '\0' };
 
@@ -125,6 +126,8 @@ void kmain()
 	print(S("cpu features: "));
 	print_num_pad(features, 2, 32, '0');
 	print(S("\n"));
+
+	srand(clock_cycles());
 
 	interrupts_init();
 	pic_init();

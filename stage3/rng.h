@@ -2,5 +2,6 @@
 #define RNG_H
 
 int rand();
+void srand(int seed);
 
 #endif
