@@ -21,7 +21,11 @@ u64 ring_pos = 0;
 u64 last_cycles_ring[RING] = {0};
 u64 last_sync_ring[RING] = {0};
 double hd_drift = 0;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverflow"
 double hd_rate = 1e10000;
+#pragma GCC diagnostic pop
 
 #define ADJ_TARGET SYNC_INTERVAL*RING
 #define MAX_OVERSHOOT ADJ_TARGET*2
