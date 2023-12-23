@@ -124,8 +124,15 @@ static void update_cursor()
 		cursor_y++;
 	}
 
-	if (cursor_y >= screen_height)
-		font_clear_screen();
+	while (cursor_y >= screen_height) {
+		cursor_y--;
+
+		memcpy((void *) (u64) gfx_info->framebuffer,
+			(void *) (u64) gfx_info->framebuffer + gfx_info->pitch * outer_height,
+			gfx_info->pitch * (gfx_info->height - outer_height));
+
+		gfx_set_area(0, gfx_info->height-outer_height, gfx_info->width, outer_height, 0xFF000000);
+	}
 
 	gfx_set_area(cursor_x * outer_width, cursor_y * outer_height,
 		outer_width, outer_height, 0xFFFFFFFF);
