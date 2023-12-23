@@ -298,7 +298,7 @@ static void cmd_choose(str arg)
 			iter = f;
 			int chosen = rand() % choices;
 			str line;
-			for (int i = 0; i < chosen; i++)
+			for (int i = 0; i < chosen+1; i++)
 				line = str_walk(&iter, S("\n"));
 			print(line);
 			print_char('\n');
