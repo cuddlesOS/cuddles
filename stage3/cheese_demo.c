@@ -95,7 +95,7 @@ void cheese_demo()
 		float delta = (time1 - time) / (float)(NANOSECONDS);
 		time = time1;
 
-		angle += delta * 60;
+		angle += delta * 90;
 
 		float transform[4][4];
 		float tmp[4][4];
