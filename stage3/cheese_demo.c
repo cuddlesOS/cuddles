@@ -2,6 +2,7 @@
 #include "math3d.h"
 #include "heap.h"
 #include "rng.h"
+#include "clock.h"
 
 static u32 *make_cheese_texture(u32 tex_w, u32 tex_h)
 {
@@ -87,8 +88,14 @@ void cheese_demo()
 
 	float angle = 0;
 
+	u64 time = clock_monotonic();
+
 	for (;;) {
-		angle += 0.3;
+		u64 time1 = clock_monotonic();
+		float delta = (time1 - time) / (float)(NANOSECONDS);
+		time = time1;
+
+		angle += delta * 60;
 
 		float transform[4][4];
 		float tmp[4][4];
