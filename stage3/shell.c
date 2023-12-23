@@ -280,6 +280,34 @@ static void cmd_clocktest(str arg)
 	}
 }
 
+static void cmd_choose(str arg)
+{
+	str f = fs_read(arg);
+
+	if (f.data == nil) {
+		print(S("choose: file not found: "));
+		print(arg);
+		print(S("\n"));
+	} else {
+		str iter = f;
+		int choices = 0;
+		while (str_walk(&iter, S("\n")).len > 0)
+			choices++;
+
+		if (choices > 0) {
+			iter = f;
+			int chosen = rand() % choices;
+			str line;
+			for (int i = 0; i < chosen; i++)
+				line = str_walk(&iter, S("\n"));
+			print(line);
+			print_char('\n');
+		}
+
+		free(f.data);
+	}
+}
+
 typedef struct {
 	str name;
 	void (*fn)(str arg);
@@ -302,6 +330,7 @@ static command registry[] = {
 	{ S("cheese"),    &cmd_cheese    },
 	{ S("watchdog"),  &cmd_watchdog  },
 	{ S("clocktest"), &cmd_clocktest },
+	{ S("choose"),    &cmd_choose    },
 };
 
 void shell_run_cmd(str cmd)
