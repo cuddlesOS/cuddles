@@ -117,6 +117,8 @@ void ata_init()
 	// print_num(lba48_sectors, 10, 0); print("\n");
 
 	free(idvec);
+
+	print(S("ata0-witch initialized\n"));
 }
 
 void ata_read(u64 lba, u16 sectors, void *buffer)
