@@ -93,7 +93,16 @@ static void cmd_img(str arg)
 static void cmd_lspci(str arg)
 {
 	(void) arg;
-	pci_enumerate();
+	for (usize i = 0; i < pci_num_devices; i++) {
+		pci_dev *dev = &pci_devices[i];
+		print(S("bus: ")); print_num_pad(dev->bus, 16, 2, ' ');
+		print(S(" dev: ")); print_num_pad(dev->dev, 16, 1, ' ');
+		print(S(" vendor: ")); print_num_pad(dev->vendor, 16, 4, ' ');
+		print(S(" id: ")); print_num_pad(dev->id, 16, 4, ' ');
+		print(S(" class: ")); print_num_pad(dev->class, 16, 2, ' ');
+		print(S(" subclass: ")); print_num_pad(dev->subclass, 16, 2, ' ');
+		print(S("\n"));
+	}
 }
 
 static void cmd_run(str arg)

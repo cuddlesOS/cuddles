@@ -133,6 +133,7 @@ void kmain()
 	ata_init();
 	ps2_init();
 	debug_init();
+	pci_init();
 
 	shell_run_cmd(S("run init"));
 

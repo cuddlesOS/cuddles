@@ -2,11 +2,15 @@
 #include "def.h"
 #include "io.h"
 #include "font.h"
+#include "heap.h"
 
 #define PCI_CONFIG_ADDRESS 0xCF8
 #define PCI_CONFIG_DATA 0xCFC
 
-void pci_enumerate()
+usize pci_num_devices = 0;
+pci_dev *pci_devices = nil;
+
+void pci_init()
 {
 	typedef struct __attribute__((packed)) {
 		u8 offset;
@@ -28,13 +32,22 @@ void pci_enumerate()
 		};
 
 		outl(PCI_CONFIG_ADDRESS, BITCAST(addr, pci_config_addr, u32));
-		u32 x = inl(PCI_CONFIG_DATA);
-		if (x != 0xFFFFFFFF) {
-			print(S("bus: ")); print_num_pad(bus, 16, 2, ' ');
-			print(S(" dev: ")); print_num_pad(dev, 16, 1, ' ');
-			print(S(" vendor: ")); print_num_pad(x & 0xFFFF, 16, 4, ' ');
-			print(S(" id: ")); print_num_pad((x >> 16) & 0xFFFF, 16, 4, ' ');
-			print(S("\n"));
-		}
+		u32 reg_0 = inl(PCI_CONFIG_DATA);
+		if (reg_0 == 0xFFFFFFFF)
+			continue;
+
+		addr.offset = 0x8;
+		outl(PCI_CONFIG_ADDRESS, BITCAST(addr, pci_config_addr, u32));
+		u32 reg_2 = inl(PCI_CONFIG_DATA);
+
+		pci_devices = realloc(pci_devices, ++pci_num_devices * sizeof *pci_devices);
+		pci_devices[pci_num_devices-1] = (pci_dev) {
+			.bus = addr.bus,
+			.dev = addr.dev,
+			.vendor = reg_0 & 0xFFFF,
+			.id = (reg_0 >> 16) & 0xFFFF,
+			.class = reg_2 >> 24,
+			.subclass = (reg_2 >> 16) & 0xff,
+		};
 	}
 }
