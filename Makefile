@@ -34,7 +34,8 @@ STAGE3_C = \
 	stage3/version.o \
 	stage3/rng.o \
 	stage3/cheese3d.o \
-	stage3/cheese_demo.o
+	stage3/cheese_demo.o \
+	stage3/debug.o
 
 STAGE3 = $(STAGE3_C) \
 	stage3/isr.o \

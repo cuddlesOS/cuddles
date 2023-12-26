@@ -16,6 +16,7 @@
 #include "gfx.h"
 #include "clock.h"
 #include "rng.h"
+#include "debug.h"
 
 char keymap[256] = { '\0' };
 
@@ -56,9 +57,6 @@ void keyboard_handler()
 		}
 	}
 }
-
-str dbg_map = NILS;
-str dbg_disas = NILS;
 
 void kmain()
 {
@@ -132,13 +130,9 @@ void kmain()
 	interrupts_init();
 	pic_init();
 	thread_init();
-
 	ata_init();
 	ps2_init();
-
-	print(S("loading kernel debug info...\n"));
-	dbg_map = fs_read(S("dbg/kernel.map"));
-	dbg_disas = fs_read(S("dbg/kernel.dis.asm"));
+	debug_init();
 
 	shell_run_cmd(S("run init"));
 
