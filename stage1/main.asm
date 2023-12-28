@@ -105,10 +105,12 @@ load_stages:
 	jne .fail
 
 	; increase buffer pointer
-	add bx, 512
+	mov ax, es
+	add ax, 512/0x10
+	mov es, ax
 
 	; check if finished
-	cmp bx, KSIZE
+	cmp ax, (KSTART+KSIZE)/0x10
 	jae .success
 
 	; next sector
