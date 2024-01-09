@@ -64,9 +64,15 @@ void kmain()
 
 #define MMAP for (MemRegion *mreg = (void *) 0x500; mreg->start != nil; mreg++)
 	MMAP {
-		if (mreg->start == (void *) 0x100000) {
-			mreg->start = (void *) 0x200000;
-			mreg->size -= 0x100000;
+		// remove anything between 0x100000 and 0x200000. it has already been mapped
+		usize start = (usize) mreg->start;
+		if (start >= 0x100000 && start < 0x200000) {
+			if (start + mreg->size <= 0x200000) {
+				mreg->size = 0; // kill it
+			} else {
+				mreg->size = start + mreg->size - 0x200000;
+				mreg->start = (void *) 0x200000;
+			}
 		}
 	}
 
