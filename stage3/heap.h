@@ -14,4 +14,17 @@ void *kmalloc(usize siz);
 void kfree(void *ptr);
 void *krealloc(void *ptr, usize size);
 
+typedef struct __attribute__((packed)) heap_header {
+	struct heap_header *next;
+	usize size;
+} heap_header;
+
+heap_header *heap_get_free_ptr();
+
+#ifdef DEBUG
+void heap_check();
+#else
+#define heap_check()
+#endif
+
 #endif

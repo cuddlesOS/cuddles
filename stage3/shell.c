@@ -317,6 +317,24 @@ static void cmd_choose(str arg)
 	}
 }
 
+static void cmd_heapdbg(str arg)
+{
+	(void) arg;
+	heap_header *free_ptr = heap_get_free_ptr();
+
+	heap_header *h = free_ptr;
+	for (;;) {
+		print_hex((u64) h);
+		print(S(" "));
+		print_hex(h->size);
+		print(S("\n"));
+
+		h = h->next;
+		if (h == free_ptr)
+			break;
+	}
+}
+
 typedef struct {
 	str name;
 	void (*fn)(str arg);
@@ -340,6 +358,7 @@ static command registry[] = {
 	{ S("watchdog"),  &cmd_watchdog  },
 	{ S("clocktest"), &cmd_clocktest },
 	{ S("choose"),    &cmd_choose    },
+	{ S("heapdbg"),   &cmd_heapdbg   },
 };
 
 void shell_run_cmd(str cmd)

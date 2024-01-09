@@ -1,34 +1,57 @@
 #include "halt.h"
 #include "heap.h"
 #include "memory.h"
+#include "font.h"
+#include "interrupts.h"
 
 #define PAGESIZE 0x1000
 #define MAGIC ((void *) 0x69)
 
-typedef struct __attribute__((packed)) Header {
-	struct Header *next;
-	usize size;
-} Header;
+static heap_header init_free_ptr;
+static heap_header *free_ptr = nil;
 
-static Header init_free_ptr;
-static Header *free_ptr = nil;
+#ifdef DEBUG
+void heap_check()
+{
+	heap_header *h = free_ptr;
+	for (;;) {
+		if ((u64) h < 0x100000) {
+			print(S("heap corruption\n"));
+			asm volatile("int $1");
+		}
+
+		h = h->next;
+		if (h == free_ptr)
+			break;
+	}
+}
+#endif
 
 void kfree(void *ptr)
 {
-	Header *h = ((Header *) ptr) - 1;
+	ISR_UNSAFE
 
+	heap_check();
+
+	heap_header *h = ((heap_header *) ptr) - 1;
 	if (h->next != MAGIC)
-		panic(S("kfree: invalid pointer"));
+		panic(S("kfree: invalid pointer\n"));
 
-	Header *next = free_ptr->next;
+	heap_header *next = free_ptr->next;
 	free_ptr->next = h;
 	h->next = next;
+
+	heap_check();
 }
 
 void *try_kmalloc(usize size)
 {
-	for (Header *prev = free_ptr;; prev = prev->next) {
-		Header *h = prev->next;
+	ISR_UNSAFE
+
+	heap_check();
+
+	for (heap_header *prev = free_ptr;; prev = prev->next) {
+		heap_header *h = prev->next;
 
 		if (h->size < size) {
 			if (h == free_ptr)
@@ -37,17 +60,20 @@ void *try_kmalloc(usize size)
 				continue;
 		}
 
-		if (h->size <= size + sizeof(Header)) {
+		if (h->size <= size + sizeof(heap_header)) {
 			prev->next = h->next;
 		} else {
 			// split
-			h->size -= size + sizeof(Header);
-			h = ((void *) h) + sizeof(Header) + h->size;
+			h->size -= size + sizeof(heap_header);
+			h = ((void *) h) + sizeof(heap_header) + h->size;
 			h->size = size;
 		}
 
 		h->next = MAGIC;
 		free_ptr = prev;
+
+		heap_check();
+
 		return h + 1;
 	}
 
@@ -56,29 +82,29 @@ void *try_kmalloc(usize size)
 
 void *kmalloc(usize size)
 {
-	void *p;
+	ISR_UNSAFE
 
-	p = try_kmalloc(size);
-	if (p) return p;
-	panic(S("out of memory"));
-
-	return nil;
+	void *ptr = try_kmalloc(size);
+	if (ptr == nil)
+		panic(S("kmalloc: out of memory\n"));
+	return ptr;
 }
 
 void *krealloc(void *ptr, usize size)
 {
+	ISR_UNSAFE
+
 	if (ptr == nil)
 		return kmalloc(size);
 
-	Header *h = ((Header *) ptr) - 1;
-
+	heap_header *h = ((heap_header *) ptr) - 1;
 	if (h->next != MAGIC)
-		panic(S("krealloc: invalid pointer"));
+		panic(S("krealloc: invalid pointer\n"));
 
 	void *new = kmalloc(size);
 
 	lmemcpy(new, ptr, h->size);
-	kfree(ptr);
+	kfree(h + 1);
 
 	return new;
 }
@@ -93,12 +119,12 @@ void heap_init()
 void heap_add(void *ptr, usize size)
 {
 	// discard blocks that are too small
-	if (size <= sizeof(Header))
+	if (size <= sizeof(heap_header))
 		return;
 
-	Header *h = ptr;
+	heap_header *h = ptr;
 	h->next = MAGIC;
-	h->size = size - sizeof(Header);
+	h->size = size - sizeof(heap_header);
 
 	kfree(h + 1);
 }
@@ -129,4 +155,9 @@ void heap_add_region(MemRegion *region)
 	}
 
 	region->used = -1; // just to be safe
+}
+
+heap_header *heap_get_free_ptr()
+{
+	return free_ptr;
 }

@@ -11,4 +11,13 @@ typedef struct __attribute__((packed)) {
 
 void interrupts_init();
 
+extern bool in_isr;
+
+#ifdef DEBUG
+void interrupts_unsafe(const char *function);
+#define ISR_UNSAFE interrupts_unsafe(__FUNCTION__);
+#else
+#define ISR_UNSAFE
+#endif
+
 #endif

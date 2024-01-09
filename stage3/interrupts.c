@@ -9,10 +9,14 @@
 #include "string.h"
 #include "debug.h"
 
+bool in_isr = false;
+
 extern u64 idt_entries[256]; // isr.asm
 
 void interrupt_handler(interrupt_frame *frame)
 {
+	in_isr = true;
+
 	if (frame->which < 32) {
 		debug_exception(frame);
 	} else if (frame->which-32 < 16) {
@@ -42,6 +46,16 @@ void interrupt_handler(interrupt_frame *frame)
 		}
 
 		ack_irq(irq);
+	}
+
+	in_isr = false;
+}
+
+void interrupts_unsafe(const char *func)
+{
+	if (in_isr) {
+		print(str_intro((char *) func));
+		panic(S(" called in ISR\n"));
 	}
 }
 
