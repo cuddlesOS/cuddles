@@ -140,14 +140,15 @@ void cheese_demo()
 	cheese ch = make_cheese_model(8, rad(60), 500, 375);
 
 	float angle = 0;
-	u64 time = clock_monotonic();
+	u64 last_frame = clock_monotonic();
 
 	for (;;) {
-		u64 time1 = clock_monotonic();
-		float delta = (time1 - time) / (float)(NANOSECONDS);
-		time = time1;
+		u64 now = clock_monotonic();
 
-		angle += delta * 90;
+		float delta = (now - last_frame) / (float)(NANOSECONDS);
+		last_frame = now;
+
+		angle += delta * 120;
 
 		float transform[4][4];
 		float tmp[4][4];
