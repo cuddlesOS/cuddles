@@ -107,7 +107,7 @@ void ata_init()
 	if (inb(IO_ATA0_DATA + ATA_IO_LBA_MID) != 0 || inb(IO_ATA0_DATA + ATA_IO_LBA_HIGH) != 0)
 		panic(S("ata0-witch is not ATA\n"));
 
-	u16 *idvec = malloc(256 * sizeof *idvec);
+	u16 *idvec = kmalloc(256 * sizeof *idvec);
 	ata_recv(idvec);
 
 	if (!(idvec[83] & (1 << 10)))
@@ -116,7 +116,7 @@ void ata_init()
 	// u64 lba48_sectors = *(u64 *) &idvec[100];
 	// print_num(lba48_sectors, 10, 0); print("\n");
 
-	free(idvec);
+	kfree(idvec);
 
 	print(S("ata0-witch initialized\n"));
 }
@@ -147,7 +147,7 @@ void ata_read(u64 lba, u16 sectors, void *buffer)
 
 void *ata_read_full(u64 lba, u64 sectors)
 {
-	void *buffer = malloc(512 * sectors);
+	void *buffer = kmalloc(512 * sectors);
 
 	for (u64 off = 0; off < sectors; off += 0x10000) {
 		u64 sects = sectors - off;

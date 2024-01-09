@@ -6,7 +6,7 @@
 
 static u32 *make_cheese_texture(u32 tex_w, u32 tex_h, u32 density_min, u32 density_max)
 {
-	u32 *texture = malloc(tex_h * tex_w * sizeof *texture);
+	u32 *texture = kmalloc(tex_h * tex_w * sizeof *texture);
 	for (u32 y = 0; y < tex_h; y++)
 	for (u32 x = 0; x < tex_w; x++) {
 		texture[y*tex_w+x] = 0xFFFFDE74;
@@ -49,8 +49,8 @@ static cheese make_cheese_model(u32 segments, float slice, u32 tex_w, u32 tex_h)
 	static u32 crust_back = 0xFFF2B71B;
 
 	usize num_verts = 12*segments+12;
-	vertex *vertices = malloc(sizeof *vertices * num_verts);
-	texture *textures = malloc(sizeof *textures * num_verts);
+	vertex *vertices = kmalloc(sizeof *vertices * num_verts);
+	texture *textures = kmalloc(sizeof *textures * num_verts);
 
 	float angle = 0.0;
 	float seg_delta = slice/segments;
@@ -175,7 +175,7 @@ void cheese_demo()
 
 	cheese3d_destroy(ctx);
 
-	free(ch.textures);
-	free(ch.vertices);
-	free(ch.texture);
+	kfree(ch.textures);
+	kfree(ch.vertices);
+	kfree(ch.texture);
 }

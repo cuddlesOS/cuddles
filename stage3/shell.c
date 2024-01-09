@@ -29,7 +29,7 @@ static void cmd_cat(str arg)
 		print(S("\n"));
 	} else {
 		print(f);
-		free(f.data);
+		kfree(f.data);
 	}
 }
 
@@ -47,7 +47,7 @@ static void cmd_font(str arg)
 		else
 			print(S("font: invalid file size\n"));
 
-		free(f.data);
+		kfree(f.data);
 	}
 }
 
@@ -86,7 +86,7 @@ static void cmd_img(str arg)
 					(void *) (f.data + 2 * sizeof(u32)));
 		}
 
-		free(f.data);
+		kfree(f.data);
 	}
 }
 
@@ -122,7 +122,7 @@ static void cmd_run(str arg)
 			shell_run_cmd(cmd);
 		}
 
-		free(f.data);
+		kfree(f.data);
 	}
 }
 
@@ -138,11 +138,11 @@ static void cmd_loadkeys(str arg)
 		print(S("\n"));
 	} else {
 		if (f.len == 256)
-			memcpy(keymap, f.data, 256);
+			lmemcpy(keymap, f.data, 256);
 		else
 			print(S("loadkeys: invalid file size\n"));
 
-		free(f.data);
+		kfree(f.data);
 	}
 }
 
@@ -165,11 +165,11 @@ static void cmd_love(str arg)
 		if (start < 0 || start + arg.len > f.len) {
 			print(S("love: argument too long (owo it's too big for me)\n"));
 		} else {
-			memcpy(f.data+start, arg.data, arg.len);
+			lmemcpy(f.data+start, arg.data, arg.len);
 			print(f);
 		}
 
-		free(f.data);
+		kfree(f.data);
 	}
 }
 
@@ -220,11 +220,11 @@ static void cmd_ls(str arg)
 			print(S(" files"));
 		}
 		print_char('\n');
-		free(d.data[i].name.data);
+		kfree(d.data[i].name.data);
 	}
 
 	if (d.data != nil)
-		free(d.data);
+		kfree(d.data);
 }
 
 void cmd_shutdown(str arg)
@@ -313,7 +313,7 @@ static void cmd_choose(str arg)
 			print_char('\n');
 		}
 
-		free(f.data);
+		kfree(f.data);
 	}
 }
 

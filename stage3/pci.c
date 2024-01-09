@@ -40,7 +40,7 @@ void pci_init()
 		outl(PCI_CONFIG_ADDRESS, BITCAST(addr, pci_config_addr, u32));
 		u32 reg_2 = inl(PCI_CONFIG_DATA);
 
-		pci_devices = realloc(pci_devices, ++pci_num_devices * sizeof *pci_devices);
+		pci_devices = krealloc(pci_devices, ++pci_num_devices * sizeof *pci_devices);
 		pci_devices[pci_num_devices-1] = (pci_dev) {
 			.bus = addr.bus,
 			.dev = addr.dev,

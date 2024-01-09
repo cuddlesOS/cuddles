@@ -102,7 +102,7 @@ str str_intro(char *c)
 
 str str_clone(str s)
 {
-	str c = { s.len, malloc(s.len) };
-	memcpy(c.data, s.data, s.len);
+	str c = { s.len, kmalloc(s.len) };
+	lmemcpy(c.data, s.data, s.len);
 	return c;
 }

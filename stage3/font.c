@@ -24,7 +24,7 @@ static u16 screen_width, screen_height;
 
 void font_init()
 {
-	font = malloc(256 * 16);
+	font = kmalloc(256 * 16);
 }
 
 void font_set_size(u16 size)
@@ -56,12 +56,12 @@ term_pos font_get_size()
 
 void font_load_blob(const void *blob)
 {
-	memcpy(font, blob, 256*16);
+	lmemcpy(font, blob, 256*16);
 }
 
 void font_load_builtin()
 {
-	memcpy(font, fs_fonts_ter_u16n_cuddlefont, 256*16);
+	lmemcpy(font, fs_fonts_ter_u16n_cuddlefont, 256*16);
 }
 
 void font_load_classic()
@@ -89,7 +89,7 @@ void font_load_classic()
 		}
 	}
 
-	free(cfont);
+	kfree(cfont);
 }
 
 void font_clear_screen()
@@ -127,7 +127,7 @@ static void update_cursor()
 	while (cursor_y >= screen_height) {
 		cursor_y--;
 
-		memcpy((void *) (u64) gfx_info->framebuffer,
+		lmemcpy((void *) (u64) gfx_info->framebuffer,
 			(void *) (u64) gfx_info->framebuffer + gfx_info->pitch * outer_height,
 			gfx_info->pitch * (gfx_info->height - outer_height));
 

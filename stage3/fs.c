@@ -14,7 +14,7 @@ void fs_walk(FS_WALKER(*fun), void *arg)
 		u8 *info = ata_read_full(lba, 1);
 
 		if (memcmp(info+257, "ustar", 5) != 0) {
-			free(info);
+			kfree(info);
 			break;
 		}
 
@@ -26,7 +26,7 @@ void fs_walk(FS_WALKER(*fun), void *arg)
 
 		bool done = fun(filename, lba, fsize, fsect, arg);
 
-		free(info);
+		kfree(info);
 		if (done)
 			break;
 
@@ -126,7 +126,7 @@ static FS_WALKER(fs_readdir_walker)
 
 		case HER_CHILD:
 			if (arg->result.len == arg->cap)
-				arg->result.data = realloc(arg->result.data,
+				arg->result.data = krealloc(arg->result.data,
 					sizeof(dirent) * (arg->cap = arg->cap ? arg->cap*2 : 1));
 			arg->result.data[arg->result.len++] = (dirent) {
 				.name = str_clone(entn),

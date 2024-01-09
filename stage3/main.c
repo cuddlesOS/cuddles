@@ -30,7 +30,7 @@ void keyboard_handler()
 	for (;;) {
 		event *e = yield(nil);
 		u8 code = e->data.scancode;
-		free(e);
+		kfree(e);
 
 		bool stop = (code & (1 << 7)) != 0;
 		code &= ~(1 << 7);
@@ -52,7 +52,7 @@ void keyboard_handler()
 		} else if (c != '\0') {
 			print_char(c);
 			if (buffer.len == cap)
-				buffer.data = realloc(buffer.data, cap = cap ? cap*2 : 1);
+				buffer.data = krealloc(buffer.data, cap = cap ? cap*2 : 1);
 			buffer.data[buffer.len++] = c;
 		}
 	}

@@ -27,9 +27,9 @@ void interrupt_handler(interrupt_frame *frame)
 			if (queue_write.len == queue_write.cap) {
 				panic(S("queue exceeded\n"));
 				/*
-				// TODO: malloc would cause a race condition
+				// TODO: kmalloc would cause a race condition
 				queue_write.cap = queue_write.cap == 0 ? 1 : queue_write.cap * 2;
-				queue_write.data = realloc(queue_write.data, queue_write.cap);
+				queue_write.data = krealloc(queue_write.data, queue_write.cap);
 				*/
 			}
 
@@ -64,7 +64,7 @@ void interrupts_init()
 	   u32 zero;
 	} __attribute__((packed)) interrupt_descriptor;
 
-	interrupt_descriptor *idt = malloc(256 * sizeof *idt);
+	interrupt_descriptor *idt = kmalloc(256 * sizeof *idt);
 
 	for (int i = 0; i < 255; i++) {
 		union {

@@ -11,8 +11,8 @@ cheese3d_ctx cheese3d_create(u32 width, u32 height, u32 pitch, u32 bgcolor)
 		.height = height,
 		.pitch = pitch,
 		.bgcolor = bgcolor,
-		.depth_buffer = malloc(gfx_info->width * gfx_info->height * sizeof(u32)),
-		.color_buffer = malloc(gfx_info->pitch * gfx_info->height),
+		.depth_buffer = kmalloc(gfx_info->width * gfx_info->height * sizeof(u32)),
+		.color_buffer = kmalloc(gfx_info->pitch * gfx_info->height),
 	};
 }
 
@@ -23,8 +23,8 @@ cheese3d_ctx cheese3d_create_default(u32 bgcolor)
 
 void cheese3d_destroy(cheese3d_ctx ctx)
 {
-	free(ctx.depth_buffer);
-	free(ctx.color_buffer);
+	kfree(ctx.depth_buffer);
+	kfree(ctx.color_buffer);
 }
 
 void cheese3d_clear(cheese3d_ctx ctx, bool color, bool depth)
@@ -144,5 +144,5 @@ void cheese3d_render(cheese3d_ctx ctx, usize num, vertex *vertices, texture *tex
 
 void cheese3d_display(cheese3d_ctx ctx)
 {
-	memcpy((void *) (u64) gfx_info->framebuffer, ctx.color_buffer, gfx_info->pitch * gfx_info->height);
+	lmemcpy((void *) (u64) gfx_info->framebuffer, ctx.color_buffer, gfx_info->pitch * gfx_info->height);
 }

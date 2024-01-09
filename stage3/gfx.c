@@ -40,7 +40,7 @@ void gfx_draw_img(u16 x, u16 y, u16 w, u16 h, u32 *img)
 {
 	void *cbeg = (void *) (u64) (gfx_info->framebuffer + y * gfx_info->pitch + x * sizeof(color));
 	for (u16 yi = 0; yi < h; cbeg += gfx_info->pitch, yi++)
-		memcpy(cbeg, img + yi * w, w * sizeof(color));
+		lmemcpy(cbeg, img + yi * w, w * sizeof(color));
 
 	BARRIER_VAR(cbeg);
 }

@@ -4,7 +4,7 @@
 
 classic_char *font_classic()
 {
-	classic_char *font = malloc(256 * sizeof *font);
+	classic_char *font = kmalloc(256 * sizeof *font);
 	memset(font, 0, 256 * sizeof *font);
 
 	font[' '] = (classic_char) {{

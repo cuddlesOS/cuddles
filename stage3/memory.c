@@ -1,14 +1,14 @@
 #include "heap.h"
 #include "memory.h"
 
-void *memcpy(void *dst, const void *src, usize bytes)
+void *lmemcpy(void *dst, const void *src, usize bytes)
 {
 	for (usize i = 0; i < bytes; i++)
 		((unsigned char *) dst)[i] = ((const unsigned char *) src)[i];
 	return dst;
 }
 
-void *memcpy_r(void *dst, const void *src, usize bytes)
+void *rmemcpy(void *dst, const void *src, usize bytes)
 {
 	for (usize i = bytes; i > 0; i--)
 		((unsigned char *) dst)[i-1] = ((const unsigned char *) src)[i-1];

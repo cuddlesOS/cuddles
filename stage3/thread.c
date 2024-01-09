@@ -24,7 +24,7 @@ void thread_resume(void *ret, thread *t)
 // aligned on 16-byte boundary
 static void *alloc_stack(void **alloc)
 {
-	usize stack = (usize) malloc(STACK_SIZE+16);
+	usize stack = (usize) kmalloc(STACK_SIZE+16);
 	if (alloc != nil)
 		*alloc = (void *) stack;
 	stack += 16 - stack % 16;
@@ -33,7 +33,7 @@ static void *alloc_stack(void **alloc)
 
 thread *thread_create(str name, void *init)
 {
-	thread *t = malloc(sizeof *t);
+	thread *t = kmalloc(sizeof *t);
 	t->name = name;
 	t->stack = alloc_stack(&t->stack_bottom) + STACK_SIZE - 16;
 	*(void **) t->stack = init;
@@ -49,8 +49,8 @@ void thread_sched(yield_arg *arg, void *stack)
 	if (arg == nil) {
 		// TODO: add to some sort of runqueue? (nil means not polling for anything)
 	} else if (arg->exit) {
-		free(current_thread->stack_bottom);
-		free(current_thread);
+		kfree(current_thread->stack_bottom);
+		kfree(current_thread);
 		current_thread = nil;
 	} else if (arg->timeout >= 0) {
 		// TODO: meow
@@ -70,11 +70,11 @@ void thread_sched(yield_arg *arg, void *stack)
 		}
 
 		if (queue_read.len > 0) {
-			event *e = malloc(sizeof *e);
+			event *e = kmalloc(sizeof *e);
 			*e = queue_read.data[--queue_read.len];
 
 			if (irq_services[e->irq] == nil)
-				free(e); // *shrug*
+				kfree(e); // *shrug*
 			else
 				// this never returns. callee must free e
 				thread_resume(e, irq_services[e->irq]);
@@ -88,6 +88,6 @@ void thread_init()
 {
 	thread_sched_stack = alloc_stack(nil)+STACK_SIZE-8;
 
-	queue_read = (event_queue) { 0, 1024, malloc(1024 * sizeof(event)) };
-	queue_write = (event_queue) { 0, 1024, malloc(1024 * sizeof(event)) };
+	queue_read = (event_queue) { 0, 1024, kmalloc(1024 * sizeof(event)) };
+	queue_write = (event_queue) { 0, 1024, kmalloc(1024 * sizeof(event)) };
 }

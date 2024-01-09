@@ -13,19 +13,19 @@ typedef struct __attribute__((packed)) Header {
 static Header init_free_ptr;
 static Header *free_ptr = nil;
 
-void free(void *ptr)
+void kfree(void *ptr)
 {
 	Header *h = ((Header *) ptr) - 1;
 
 	if (h->next != MAGIC)
-		panic(S("free: invalid pointer"));
+		panic(S("kfree: invalid pointer"));
 
 	Header *next = free_ptr->next;
 	free_ptr->next = h;
 	h->next = next;
 }
 
-void *try_malloc(usize size)
+void *try_kmalloc(usize size)
 {
 	for (Header *prev = free_ptr;; prev = prev->next) {
 		Header *h = prev->next;
@@ -54,31 +54,31 @@ void *try_malloc(usize size)
 	return nil;
 }
 
-void *malloc(usize size)
+void *kmalloc(usize size)
 {
 	void *p;
 
-	p = try_malloc(size);
+	p = try_kmalloc(size);
 	if (p) return p;
 	panic(S("out of memory"));
 
 	return nil;
 }
 
-void *realloc(void *ptr, usize size)
+void *krealloc(void *ptr, usize size)
 {
 	if (ptr == nil)
-		return malloc(size);
+		return kmalloc(size);
 
 	Header *h = ((Header *) ptr) - 1;
 
 	if (h->next != MAGIC)
-		panic(S("realloc: invalid pointer"));
+		panic(S("krealloc: invalid pointer"));
 
-	void *new = malloc(size);
+	void *new = kmalloc(size);
 
-	memcpy(new, ptr, h->size);
-	free(ptr);
+	lmemcpy(new, ptr, h->size);
+	kfree(ptr);
 
 	return new;
 }
@@ -100,7 +100,7 @@ void heap_add(void *ptr, usize size)
 	h->next = MAGIC;
 	h->size = size - sizeof(Header);
 
-	free(h + 1);
+	kfree(h + 1);
 }
 
 void heap_add_region(MemRegion *region)
