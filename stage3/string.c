@@ -1,6 +1,7 @@
 #include "string.h"
 #include "memory.h"
 #include "heap.h"
+#include "math.h"
 
 isize str_cmp(str s1, str s2)
 {
@@ -52,6 +53,37 @@ usize str_parse_num(str s, u8 base, u64 *x)
 	}
 
     return s.len;
+}
+
+usize str_parse_dbl(str s, double *x)
+{
+	*x = 0.0;
+	str iter = s;
+
+	bool neg = false;
+	if (iter.len >= 1 && iter.data[0] == '-') {
+		neg = true;
+		iter = str_advance(iter, 1);
+	}
+
+	u64 tmp;
+	usize adv = str_parse_num(iter, 10, &tmp);
+	if (!adv)
+		return 0;
+
+	iter = str_advance(iter, adv);
+	*x = tmp;
+
+	if (iter.len >= 1 && iter.data[0] == '.'
+			&& (adv = str_parse_num(str_advance(iter, 1), 10, &tmp))) {
+		*x += (double) tmp / (double) ipow(10, adv);
+		iter = str_advance(iter, 1+adv);
+	}
+
+	if (neg)
+		*x = -*x;
+
+	return s.len - iter.len;
 }
 
 str str_walk(str *s, str sep)

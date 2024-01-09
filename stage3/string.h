@@ -17,6 +17,10 @@ usize str_find(str s, str tokens);
 // resulting number is stored in *x
 usize str_parse_num(str s, u8 base, u64 *x);
 
+// parses a double and returns number of chars processed
+// resulting number is stored in *x
+usize str_parse_dbl(str s, double *x);
+
 // this is a splitting function
 // returns the next non-empty substring of *s that is delimited by the tokens in sep
 // the returned string does not contain any of the separators
