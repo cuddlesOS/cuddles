@@ -8,13 +8,14 @@ paging:
 .clr_buf:
 	mov byte[di], 0
 	inc di
-	cmp di, PAGETABLE+0x4000
+	cmp di, PAGETABLE+0x5000
 	jne .clr_buf
 
 	; init 3 page map levels
 	mov dword[PAGETABLE+0x0000], PAGETABLE+0x1003
 	mov dword[PAGETABLE+0x1000], PAGETABLE+0x2003
 	mov dword[PAGETABLE+0x2000], PAGETABLE+0x3003
+	mov dword[PAGETABLE+0x2008], PAGETABLE+0x4003
 
 	; fill up level 4 page map
 	mov eax, 3
@@ -23,7 +24,7 @@ paging:
 	mov [di], eax
 	add di, 8
 	add eax, 0x1000
-	cmp eax, 0x100000
+	cmp eax, 0x200000
 	jb .build_pt
 
 	; enable paging and long mode

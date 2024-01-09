@@ -12,8 +12,12 @@ local regs = {
 print("global watchdog")
 print("extern rand, watchdog_err")
 
+print("section .bss")
+
 print("regs_backup: resq 16")
 print("regs_rand: resq 16")
+
+print("section .text")
 
 print("watchdog:")
 

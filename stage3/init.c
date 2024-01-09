@@ -1,7 +1,7 @@
 #include "def.h"
 void kmain();
 
-void init()
+void _start()
 {
 	// enable SSE. long mode demands it is present
 	u64 cr0;
@@ -14,5 +14,6 @@ void init()
 
 	u16 fpu_cw = 0x37a;
 	asm volatile("fldcw %0"::"m"(fpu_cw));
+
 	kmain();
 }

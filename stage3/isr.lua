@@ -6,6 +6,13 @@ for _, x in pairs({8, 10, 11, 12, 13, 14, 17, 21, 29, 30}) do
 	has_error_code[x] = true
 end
 
+print("section .data")
+print("idt_entries:")
+for i = 0, 255 do
+	print("dq isr_"..i)
+end
+
+print("section .text")
 for i = 0, 255 do
 	print("isr_" .. i .. ":")
 	print("cli")
@@ -16,11 +23,6 @@ for i = 0, 255 do
 
 	print("push " .. i)
 	print("jmp isr_common")
-end
-
-print("idt_entries:")
-for i = 0, 255 do
-	print("dq isr_"..i)
 end
 
 print([[
@@ -42,6 +44,7 @@ isr_common:
 	push rax
 
 	cld
+	xor rbp, rbp
 	mov rdi, rsp
 	call interrupt_handler
 

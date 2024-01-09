@@ -63,6 +63,12 @@ void kmain()
 	heap_init();
 
 #define MMAP for (MemRegion *mreg = (void *) 0x500; mreg->start != nil; mreg++)
+	MMAP {
+		if (mreg->start == (void *) 0x100000) {
+			mreg->start = (void *) 0x200000;
+			mreg->size -= 0x100000;
+		}
+	}
 
 	// backup memory map
 	usize n_mreg = 0;

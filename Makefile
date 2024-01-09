@@ -9,8 +9,15 @@ override CFLAGS += \
 	-nostartfiles \
 	-nodefaultlibs \
 	-Wall \
-	-Wextra \
-	-MMD
+	-Wextra
+
+override LDFLAGS += --no-warn-rwx-segment
+
+ifneq "$(DEBUG)" "0"
+	override CFLAGS += -g -fno-omit-frame-pointer -DDEBUG
+	override LDFLAGS += -g
+	override NASMFLAGS_KERNEL += -g
+endif
 
 STAGE3_C = \
 	stage3/init.o \
@@ -44,41 +51,42 @@ STAGE3 = $(STAGE3_C) \
 	stage3/watchdog.o
 
 PAD_BOUNDARY = pad() { truncate -s $$(echo "($$(du -b $$1 | cut -f1)+$$2-1)/$$2*$$2" | bc) $$1; }; pad
-DISAS = objdump -b binary -D -M intel -m i386:x86-64 stage3.bin --adjust-vma 0x9000
+DISAS = objdump -D -M intel -j .text stage3.elf
 
-cuddles.img: stage1.bin stage2.bin stage3.bin fs.tar
-	cat stage{1,2,3}.bin fs.tar > cuddles.img
+cuddles.img: stage1.bin stage23.bin fs.tar
+	cat stage{1,23}.bin fs.tar > cuddles.img
 	$(PAD_BOUNDARY) cuddles.img 1048576
 
-stage1.bin: stage1/main.asm stage1/print.asm stage2.bin stage3.bin
-	nasm -f bin stage1/main.asm -o stage1.bin \
-		-dKSIZE=$$(du -cb stage{2,3}.bin | tail -n1 | cut -f1)
+stage1.bin: stage1/main.asm stage1/print.asm stage23.bin
+	nasm $(NASMFLAGS_BOOT) -f bin stage1/main.asm -o stage1.bin \
+		-dKSIZE=$$(du -cb stage23.bin | tail -n1 | cut -f1)
+
+stage23.bin: stage2.bin stage3.elf
+	cat stage2.bin stage3.elf > stage23.bin
+	$(PAD_BOUNDARY) stage23.bin 512
 
 stage2.bin: stage2/main.asm stage2/mmap.asm stage2/paging.asm stage2/vesa.asm stage1/print.asm
-	nasm -f bin stage2/main.asm -o stage2.bin
-	truncate -s 4608 stage2.bin
+	nasm $(NASMFLAGS_BOOT) -f bin stage2/main.asm -o stage2.bin
 
-stage3.bin fs/dbg/kernel.map &: $(STAGE3) stage3.ld
-	mkdir -p fs/dbg/
-	ld $(STAGE3) -T stage3.ld -Map=fs/dbg/kernel.map
-	$(PAD_BOUNDARY) stage3.bin 512
+stage3.elf: $(STAGE3) stage3.ld
+	ld $(LDFLAGS) $(STAGE3) -T stage3.ld -o stage3.elf
 
-fs/dbg/kernel.dis.asm: stage3.bin
+fs/dbg/kernel.dis.asm: stage3.elf
 	mkdir -p fs/dbg/
 	$(DISAS) > fs/dbg/kernel.dis.asm
 
 stage3/%.o: stage3/%.asm
-	nasm -f elf64 $< -o $@
+	nasm $(NASMFLAGS_KERNEL) -f elf64 $< -o $@
 
 stage3/interrupts.o: stage3/interrupts.c
-	gcc $(CFLAGS) -mgeneral-regs-only -c $< -o $@
+	gcc $(CFLAGS) -MMD -mgeneral-regs-only -c $< -o $@
 stage3/pic.o: stage3/pic.c
-	gcc $(CFLAGS) -mgeneral-regs-only -c $< -o $@
+	gcc $(CFLAGS) -MMD -mgeneral-regs-only -c $< -o $@
 stage3/init.o: stage3/init.c
-	gcc $(CFLAGS) -mgeneral-regs-only -c $< -o $@
+	gcc $(CFLAGS) -MMD -mgeneral-regs-only -c $< -o $@
 
 stage3/%.o: stage3/%.c
-	gcc $(CFLAGS) -c $< -o $@
+	gcc $(CFLAGS) -MMD -c $< -o $@
 
 -include $(STAGE3_C:%.o=%.d)
 
@@ -99,7 +107,7 @@ stage3/font.c: stage3/font_builtin.c
 stage3/font_builtin.c: fs/fonts/ter-u16n.cuddlefont
 	xxd -i $< > $@
 
-fs.tar: $(shell find fs | sed 's/ /\\ /g') fs/dbg/kernel.map fs/dbg/kernel.dis.asm
+fs.tar: $(shell find fs | sed 's/ /\\ /g') fs/dbg/kernel.dis.asm
 	cd fs && tar --format=ustar -cf ../fs.tar *
 
 .PHONY: run clean flash disas qemu bochs
@@ -123,5 +131,5 @@ clean:
 flash: cuddles.img
 	dd if=cuddles.img of=$(DEV)
 
-disas: stage3.bin
+disas: stage3.elf
 	$(DISAS) --disassembler-color=on

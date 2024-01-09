@@ -2,8 +2,8 @@
 *.o
 *.d
 *.img
-*.map
 *.dis.asm
+*.elf
 .version-*
 bx_enh_dbg.ini
 stage3/isr.asm

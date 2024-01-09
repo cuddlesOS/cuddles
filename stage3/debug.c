@@ -4,7 +4,6 @@
 #include "halt.h"
 #include "debug.h"
 
-static str dbg_map = NILS;
 static str dbg_disas = NILS;
 
 static str exception[32] = {
@@ -37,56 +36,70 @@ static str exception[32] = {
 	NILS,
 };
 
-static void dump_frame(interrupt_frame *frame)
+static bool get_source(u64 code, str *func, str *linep)
 {
-	print(S("rip = "));
-	print_hex(frame->rip);
+	if (dbg_disas.data == nil)
+		return false;
 
-	if (dbg_map.data != nil) {
-		str entry = NILS;
-		str iter = dbg_map;
-		while (iter.len > 0) {
-			str line = str_walk(&iter, S("\n"));
-			line = str_eat(line, S(" "));
-			if (!str_start(line, S("0x")))
+	*func = (str) NILS;
+	*linep = (str) NILS;
+
+	str iter = dbg_disas;
+	while (iter.len > 0) {
+		str line = str_walk(&iter, S("\n"));
+		u64 func_addr;
+		usize adv;
+		if ((adv = str_parse_num(line, 16, &func_addr))) {
+			line = str_advance(line, adv);
+			if (line.len < 2 || line.data[0] != ' ' || line.data[1] != '<')
 				continue;
 			line = str_advance(line, 2);
-
-			u64 addr;
-			usize adv = str_parse_num(line, 16, &addr);
-			if (adv == 0)
-				continue;
-			line = str_advance(line, adv);
-
-			if (addr > frame->rip)
-				break;
-
-			line = str_eat(line, S(" "));
-			if (line.len > 0)
-				entry = line;
-		}
-
-		if (entry.len > 0) {
-			print(S(" in "));
-			print(entry);
-		}
-	}
-
-	if (dbg_disas.data != nil) {
-		str iter = dbg_disas;
-		while (iter.len > 0) {
-			str line = str_walk(&iter, S("\n"));
+			usize close = str_find(line, S(">"));
+			*func = (str) { .len = close, .data = line.data };
+		} else {
 			u64 addr;
 			if (!str_parse_num(str_eat(line, S(" ")), 16, &addr))
 				continue;
-			if (addr == frame->rip) {
-				print(S("\n"));
-				print(line);
-				break;
-			}
+			*linep = line;
+			if (addr == code)
+				return true;
 		}
 	}
 
+	return false;
+}
+
+static void trace(u64 code, u64 base)
+{
+	if (base == 0)
+		return;
+
+	str func, line;
+	if (get_source(code, &func, &line)) {
+		print(S("\t"));
+		print_hex(code);
+		print(S(" in "));
+		print(func);
+		print(S("\n"));
+	}
+
+	u64 *stack = (u64 *) base;
+	trace(stack[1], stack[0]);
+}
+
+static void dump_frame(interrupt_frame *frame)
+{
+	str func, line;
+	if (get_source(frame->rip, &func, &line)) {
+		print(line);
+		print(S("\n"));
+	}
+
+	print(S("backtrace:\n"));
+	trace(frame->rip, frame->rbp);
+
+	print(S("rip = "));
+	print_hex(frame->rip);
 	print(S("\n"));
 
 	struct {
@@ -187,7 +200,7 @@ void debug_exception(interrupt_frame *frame)
 
 void debug_init()
 {
-	print(S("loading kernel debug info...\n"));
-	dbg_map = fs_read(S("dbg/kernel.map"));
+	print(S("loading kernel debug info... "));
 	dbg_disas = fs_read(S("dbg/kernel.dis.asm"));
+	print(S("done\n"));
 }

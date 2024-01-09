@@ -1,9 +1,4 @@
-OUTPUT(stage3.bin)
-OUTPUT_FORMAT(binary)
-
-SECTIONS
+MEMORY
 {
-	. = 0x9000;
-	.text : { *(.text) }
-	.data : { *(.bss .data .rodata) }
+	ram (rwx) : ORIGIN = 0x100000, LENGTH = 0x100000
 }

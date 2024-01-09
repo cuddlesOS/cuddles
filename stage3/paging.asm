@@ -1,14 +1,23 @@
 global page_region
-section .text
+%define PAGEBUFSIZE 0x10 * 0x1000
+
+section .bss
+
+ALIGN(4096)
+pagebuf_data: resb PAGEBUFSIZE
+
+section .data
 
 pagebuf_init:
-	.start: dq 0x5000
-	.size: dq 0x2000
+	.start: dq pagebuf_data
+	.size: dq PAGEBUFSIZE
 	.used: dq 0
 
 pagebuf: dq pagebuf_init
 
 next_page: dq 0
+
+section .text
 
 ; allocate new page table buffer
 alloc:
