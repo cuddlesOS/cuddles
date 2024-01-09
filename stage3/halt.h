@@ -3,7 +3,7 @@
 
 #include "def.h"
 
-void freeze();
-void panic(str msg);
+[[noreturn]] void freeze();
+[[noreturn]] void panic(str msg);
 
 #endif

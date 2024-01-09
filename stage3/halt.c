@@ -2,13 +2,13 @@
 #include "font.h"
 #include "pic.h"
 
-void freeze()
+[[noreturn]] void freeze()
 {
 	for (;;)
 		wait_irq();
 }
 
-void panic(str msg)
+[[noreturn]] void panic(str msg)
 {
 	print(msg);
 	freeze();
