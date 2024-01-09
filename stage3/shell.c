@@ -191,7 +191,7 @@ static void print_bytes(usize bytes)
 		if (bytes >= unit || unit == 1) {
 			print_num_pad(bytes/unit, 10, 3, ' ');
 			print_char('.');
-			print_dec((bytes%unit)/100);
+			print_dec((bytes%unit)*10/unit);
 			print_char(' ');
 			print_char(fmt[LEN(fmt)-1-i]);
 			print_char('B');
@@ -227,7 +227,7 @@ static void cmd_ls(str arg)
 		kfree(d.data);
 }
 
-void cmd_shutdown(str arg)
+static void cmd_shutdown(str arg)
 {
 	(void) arg;
 
@@ -236,7 +236,7 @@ void cmd_shutdown(str arg)
 	outw(0x604, 0x2000);
 }
 
-void cmd_cheese(str arg)
+static void cmd_cheese(str arg)
 {
 	(void) arg;
 	cheese_demo();
