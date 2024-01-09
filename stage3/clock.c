@@ -2,7 +2,6 @@
 #include "pic.h"
 #include "font.h"
 #include "io.h"
-#include "thread.h"
 #include "heap.h"
 #include "halt.h"
 
@@ -59,7 +58,7 @@ void clock_sync()
 	u64 rtc_time = monoclock_rtc_time;
 	if (last_sync + SYNC_INTERVAL <= rtc_time) {
 		u64 ring_next = (ring_pos + 1) % RING;
-		u64 diff = rtc_time - last_sync_ring[ring_next];
+		// u64 diff = rtc_time - last_sync_ring[ring_next];
 		last_sync = rtc_time;
 		last_cycles = cycles;
 		last_hd_time = monotime;
