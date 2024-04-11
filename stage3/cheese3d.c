@@ -1,7 +1,7 @@
 #include "heap.h"
 #include "math3d.h"
 #include "cheese3d.h"
-#include "gfx.h"
+#include "bootinfo.h"
 #include "memory.h"
 
 cheese3d_ctx cheese3d_create(void *target, u32 width, u32 height, u32 pitch, u32 bgcolor)
@@ -19,7 +19,7 @@ cheese3d_ctx cheese3d_create(void *target, u32 width, u32 height, u32 pitch, u32
 
 cheese3d_ctx cheese3d_create_default(u32 bgcolor)
 {
-	return cheese3d_create((void *) (u64) gfx_info->framebuffer, gfx_info->width, gfx_info->height, gfx_info->pitch, bgcolor);
+	return cheese3d_create(bootinfo->gfx_framebuffer, bootinfo->gfx_width, bootinfo->gfx_height, bootinfo->gfx_pitch, bgcolor);
 }
 
 void cheese3d_destroy(cheese3d_ctx ctx)

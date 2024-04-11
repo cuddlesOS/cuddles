@@ -1,7 +1,6 @@
 #include "gfx.h"
 #include "memory.h"
-
-struct GfxInfo *gfx_info = (void *) (0x1000-10);
+#include "bootinfo.h"
 
 // byteswap
 u32 make_color(color col)
@@ -15,17 +14,17 @@ u32 make_color(color col)
 
 void gfx_set_pixel(u16 x, u16 y, u32 col)
 {
-	u32 *out = (u32 *) (u64) (gfx_info->framebuffer + y * gfx_info->pitch + x * sizeof col);
+	u32 *out = bootinfo->gfx_framebuffer + y * bootinfo->gfx_pitch + x * sizeof col;
 	*out = col;
 	BARRIER_VAR(out);
 }
 
 void gfx_set_area(u16 x, u16 y, u16 w, u16 h, u32 col)
 {
-	void *cbeg = (void *) (u64) (gfx_info->framebuffer + y * gfx_info->pitch + x * sizeof col);
-	void *cend = cbeg + h * gfx_info->pitch;
+	void *cbeg = bootinfo->gfx_framebuffer + y * bootinfo->gfx_pitch + x * sizeof col;
+	void *cend = cbeg + h * bootinfo->gfx_pitch;
 
-	for (; cbeg < cend; cbeg += gfx_info->pitch) {
+	for (; cbeg < cend; cbeg += bootinfo->gfx_pitch) {
 		u32 *rbeg = cbeg;
 		u32 *rend = rbeg + w;
 
@@ -38,8 +37,8 @@ void gfx_set_area(u16 x, u16 y, u16 w, u16 h, u32 col)
 
 void gfx_draw_img(u16 x, u16 y, u16 w, u16 h, u32 *img)
 {
-	void *cbeg = (void *) (u64) (gfx_info->framebuffer + y * gfx_info->pitch + x * sizeof(color));
-	for (u16 yi = 0; yi < h; cbeg += gfx_info->pitch, yi++)
+	void *cbeg = bootinfo->gfx_framebuffer + y * bootinfo->gfx_pitch + x * sizeof(color);
+	for (u16 yi = 0; yi < h; cbeg += bootinfo->gfx_pitch, yi++)
 		lmemcpy(cbeg, img + yi * w, w * sizeof(color));
 
 	BARRIER_VAR(cbeg);

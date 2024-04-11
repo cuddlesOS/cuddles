@@ -1,5 +1,4 @@
 #include "def.h"
-#include "gfx.h"
 #include "halt.h"
 #include "heap.h"
 #include "font.h"
@@ -12,21 +11,13 @@
 #include "thread.h"
 #include "shell.h"
 #include "fs.h"
-#include "gfx.h"
 #include "clock.h"
 #include "rng.h"
 #include "debug.h"
+#include "bootinfo.h"
 
-typedef enum {
-	MEM_USABLE = 1,
-	MEM_RESERVED = 2,
-} mem_region_type;
-
-typedef struct __attribute__((packed)) {
-	void *start;
-	usize size;
-	usize type;
-} mem_region;
+#define T mem_region
+#include "vec.h"
 
 char keymap[256] = { '\0' };
 
@@ -68,8 +59,12 @@ void keyboard_handler()
 	}
 }
 
-void kmain()
+struct bootinfo *bootinfo;
+
+void kmain(struct bootinfo *info)
 {
+	bootinfo = info;
+
 	// PML3
 	for (u64 page = 0; page < 512*512; page++)
 		((u64 *) 0x200000)[page] = (page << 30) | 0b10000011; // bit 7 is for huge pages
@@ -78,25 +73,29 @@ void kmain()
 	for (u64 tbl = 0; tbl < 512; tbl++)
 		((u64 *) 0x1000)[tbl] = (0x200000 + tbl * 0x1000) | 0b11;
 
-#define MMAP for (mem_region *mreg = (void *) 0x500; mreg->start != nil; mreg++)
-
-	// heap init
+	// heap init and fill
 	heap_init();
-	MMAP {
+	ITER(bootinfo->mmap) {
+		mem_region *r = &bootinfo->mmap.data[i];
+		if (r->type != MEM_USABLE || r->size == 0)
+			continue;
+
 		// remove anything between 0x100000 and 0x400000. it is used for kernel and page tables
-		usize start = (usize) mreg->start;
+		usize start = (usize) r->start;
+		usize size = r->size;
+
+		if (start < 0x100000)
+			continue;
+
 		if (start >= 0x100000 && start < 0x400000) {
-			if (start + mreg->size <= 0x400000) {
-				mreg->size = 0; // kill it
-			} else {
-				mreg->size = start + mreg->size - 0x400000;
-				mreg->start = (void *) 0x400000;
-			}
+			if (start + size <= 0x400000)
+				continue; // skip
+
+			size = start + size - 0x400000;
+			start = 0x400000;
 		}
 
-		// add to heap
-		if (mreg->type == MEM_USABLE) // usable
-			heap_add(mreg->start, mreg->size);
+		heap_add((void *) start, size);
 	}
 
 	// font init
@@ -108,20 +107,28 @@ void kmain()
 	print(S("welcome to cuddles\n"));
 
 	// memory map
-	print(S("heap memory:\n"));
-	MMAP {
-		print_num_pad((u64) mreg->start, 16, 16, ' ');
+	print(S("memory map:\n"));
+	ITER(bootinfo->mmap) {
+		mem_region *r = &bootinfo->mmap.data[i];
+		print_num_pad((u64) r->start, 16, 16, ' ');
 		print(S(" | "));
-		print_num_pad((u64) mreg->start + mreg->size, 16, 16, ' ');
+		print_num_pad((u64) r->start + r->size, 16, 16, ' ');
 		print(S(" | "));
-		print_dec(mreg->type);
+		switch (r->type) {
+			case MEM_USABLE: print(S("usable")); break;
+			case MEM_RESERVED: print(S("reserved")); break;
+			case MEM_ACPI_RECLAIMABLE: print(S("acpi reclaimable")); break;
+			case MEM_ACPI_NVS: print(S("acpi nvs")); break;
+			case MEM_BAD: print(S("bad")); break;
+			default: print_dec(r->type); break;
+		}
 		print(S("\n"));
 	}
 
 	print(S("gfx framebuffer at "));
-	print_hex(gfx_info->framebuffer);
+	print_hex((u64) bootinfo->gfx_framebuffer);
 	print(S("-"));
-	print_hex((u64) gfx_info->framebuffer + gfx_info->pitch * gfx_info->height);
+	print_hex((u64) bootinfo->gfx_framebuffer + bootinfo->gfx_pitch * bootinfo->gfx_height);
 	print(S("\n"));
 
 	u32 vendor[4];

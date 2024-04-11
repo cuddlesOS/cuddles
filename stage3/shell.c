@@ -12,6 +12,7 @@
 #include "thread.h"
 #include "rng.h"
 #include "cheese_demo.h"
+#include "bootinfo.h"
 
 static void cmd_echo(str arg)
 {
@@ -82,7 +83,7 @@ static void cmd_img(str arg)
 			if (f.len != 2 * sizeof(u32) + width * height * sizeof(color))
 				print(S("img: invalid file size\n"));
 			else
-				gfx_draw_img(gfx_info->width-width, 0, width, height,
+				gfx_draw_img(bootinfo->gfx_width-width, 0, width, height,
 					(void *) (f.data + 2 * sizeof(u32)));
 		}
 

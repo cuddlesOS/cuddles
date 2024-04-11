@@ -1,14 +1,12 @@
 [org 0x7E00]
 
 %define PAGETABLE 0x1000
-%define VESAINFO  0x0500
-%define VESAMODE VESAINFO+512
-%define OWNMODE  VESAMODE+256
-%define GFXINFO PAGETABLE-10
-;%define MEMMAPCNT GFXINFO-2
+%define VESAMODES 0x500
 %define MEMMAP 0x500
 
 setup:
+	mov [bootinfo.ksize], edi
+
 	; print message
 	mov ebx, .msg
 	call print_str
@@ -28,6 +26,15 @@ setup:
 .msg:
 	db 10, 13, "cuddles stage2", 10, 13, 0
 
+bootinfo:
+	.ksize: dq 0
+	.gfx_pitch: dw 0
+	.gfx_width: dw 0
+	.gfx_height: dw 0
+	.gfx_framebuffer: dq 0
+	.mmap_len: dq 0
+	.mmap_ptr: dq 0
+
 %include "stage2/vesa.asm"
 %include "stage2/mmap.asm"
 %include "stage2/paging.asm"
@@ -46,6 +53,14 @@ long_mode:
 	mov gs, ax
 	mov ss, ax
 
-	call load_kernel_elf
+	call load_kernel_elf ; returns entry point in rax
+
+	; more stack space
+	mov rsp, 0x80000
+	xor rbp, rbp
+
+	; pass bootinfo as arg
+	mov rdi, bootinfo
+	call rax
 
 kernel_elf:

@@ -3,12 +3,13 @@
 #include "string.h"
 #include "memory.h"
 #include "heap.h"
+#include "bootinfo.h"
 
 #define FS_WALKER(X) bool (X)(str filename, u64 lba, usize fsize, usize fsect, void *varg)
 
 void fs_walk(FS_WALKER(*fun), void *arg)
 {
-	u64 lba = (*(u32 *) (0x1000-10-8))/512;
+	u64 lba = bootinfo->ksize/512;
 
 	for (;;) {
 		u8 *info = ata_read_full(lba, 1);

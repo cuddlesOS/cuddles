@@ -1,3 +1,6 @@
+vesainfo: times 512 db 0
+vesamode: times 256 db 0
+
 vesa:
 	; print message
 	mov ebx, .msg
@@ -5,16 +8,16 @@ vesa:
 
 	; get vesa bios info
 	mov eax, dword[.vbe2]
-	mov dword[VESAINFO], eax ; move "VBE2" to start of vesainfo struct
+	mov dword[vesainfo], eax ; move "VBE2" to start of vesainfo struct
 	mov ax, 0x4F00           ; get VESA BIOS information
-	mov di, VESAINFO         ; struct buffer
+	mov di, vesainfo         ; struct buffer
 	int 0x10
 
 	cmp ax, 0x004F           ; check ax for correct magic number
 	jne .fail_getinfo
 
 	mov eax, dword[.vesa]
-	cmp dword[VESAINFO], eax ; check if "VESA" is at start of stuct
+	cmp dword[vesainfo], eax ; check if "VESA" is at start of struct
 	jne .fail_getinfo
 
 	; print select message
@@ -22,8 +25,8 @@ vesa:
 	call print_str
 
 	; get segment:offset pointer to video modes into gs:ebx
-	movzx ebx, word[VESAINFO+14]
-	mov    ax, word[VESAINFO+16]
+	movzx ebx, word[vesainfo+14]
+	mov    ax, word[vesainfo+16]
 	mov gs, ax
 
 	; convert modes to own structure
@@ -36,17 +39,17 @@ vesa:
 	cmp cx, 0xFFFF      ; 0xFFFF is terminator, no suitable mode has been found
 	je .mode_done
 	mov ax, 0x4F01      ; get VESA mode information
-	mov di, VESAMODE    ; vesa mode info struct buffer
+	mov di, vesamode    ; vesa mode info struct buffer
 	int 0x10
 
 	cmp ax, 0x004F      ; check ax for correct magic number
 	jne .fail_modeinfo
 
-	mov al, byte[VESAMODE] ; get attributes
+	mov al, byte[vesamode] ; get attributes
 	and al, 0b10000000     ; extract bit 7, indicates linear framebuffer support
 	jz .mode_next
 
-	mov al, byte[VESAMODE+25] ; get bpp (bits per pixel)
+	mov al, byte[vesamode+25] ; get bpp (bits per pixel)
 	cmp al, 32
 	jne .mode_next
 
@@ -56,7 +59,7 @@ vesa:
 	mov ebx, 12
 	mul ebx
 	mov edi, eax
-	add edi, OWNMODE
+	add edi, VESAMODES
 
 	mov [edi+10], cx ; copy mode
 
@@ -74,22 +77,22 @@ vesa:
 	mov al, ' '
 	call print_chr
 
-	mov ax, [VESAMODE+16] ; copy pitch
+	mov ax, [vesamode+16] ; copy pitch
 	mov [edi+0], ax
 
-	movzx eax, word[VESAMODE+18] ; copy width
+	movzx eax, word[vesamode+18] ; copy width
 	mov [edi+2], ax
 	call print_dec
 
 	mov al, 'x'
 	call print_chr
 
-	movzx eax, word[VESAMODE+20] ; copy height
+	movzx eax, word[vesamode+20] ; copy height
 	mov [edi+4], ax
 	call print_dec
 	call newline
 
-	mov eax, [VESAMODE+40] ; copy framebuffer
+	mov eax, [vesamode+40] ; copy framebuffer
 	mov [edi+6], eax
 
 	pop ebx
@@ -132,17 +135,21 @@ vesa:
 	mov eax, edi
 	mov ebx, 12
 	mul ebx
-	add eax, OWNMODE
+	add eax, VESAMODES
 
 	; copy to final gfx info location
-	mov ebx, [eax+0]
-	mov [GFXINFO+0], ebx
+	mov bx, [eax+0]
+	mov [bootinfo.gfx_pitch], bx
 
-	mov ebx, [eax+4]
-	mov [GFXINFO+4], ebx
+	mov bx, [eax+2]
+	mov [bootinfo.gfx_width], bx
 
-	mov bx, [eax+8]
-	mov [GFXINFO+8], bx
+	mov bx, [eax+4]
+	mov [bootinfo.gfx_height], bx
+
+	mov ebx, [eax+6]
+	mov dword[bootinfo.gfx_framebuffer+0], ebx
+	mov dword[bootinfo.gfx_framebuffer+4], 0
 
 	;mov edi, eax
 	;mov eax, [edi+6]

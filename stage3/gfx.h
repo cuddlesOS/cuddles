@@ -3,13 +3,6 @@
 
 #include "def.h"
 
-extern struct __attribute__((packed)) GfxInfo {
-	u16 pitch;
-	u16 width;
-	u16 height;
-	u32 framebuffer;
-} *gfx_info;
-
 typedef struct __attribute__((packed)) {
 	u8 r, g, b, a;
 } color;

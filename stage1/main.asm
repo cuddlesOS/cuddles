@@ -19,9 +19,6 @@ boot:
 	mov ebx, .msg
 	call print_str
 
-	; save offset of the file system
-	mov dword[0x1000-10-8], KSIZE+512
-
 	; print boot drive
 	pusha
 	movzx eax, dl
@@ -36,6 +33,8 @@ boot:
 	mov bp, KSTART
 	mov sp, bp
 
+	; pass offset of the file system as argument
+	mov edi, KSIZE+512
 	; jump into stage2
 	jmp KSTART
 

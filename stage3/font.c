@@ -4,6 +4,7 @@
 #include "heap.h"
 #include "memory.h"
 #include "math.h"
+#include "bootinfo.h"
 
 #include "font_builtin.c"
 
@@ -34,8 +35,8 @@ void font_set_size(u16 size)
 	outer_width  = CHAR_WIDTH  * font_size;
 	outer_height = CHAR_HEIGHT * font_size;
 
-	screen_width  = gfx_info->width  / outer_width;
-	screen_height = gfx_info->height / outer_height;
+	screen_width  = bootinfo->gfx_width  / outer_width;
+	screen_height = bootinfo->gfx_height / outer_height;
 }
 
 void font_set_cursor(term_pos new_cursor)
@@ -95,7 +96,7 @@ void font_load_classic()
 void font_clear_screen()
 {
 	cursor_x = cursor_y = 0;
-	gfx_set_area(0, 0, gfx_info->width, gfx_info->height, 0xFF000000);
+	gfx_set_area(0, 0, bootinfo->gfx_width, bootinfo->gfx_height, 0xFF000000);
 }
 
 static void render_char(u8 c)
@@ -127,11 +128,11 @@ static void update_cursor()
 	while (cursor_y >= screen_height) {
 		cursor_y--;
 
-		lmemcpy((void *) (u64) gfx_info->framebuffer,
-			(void *) (u64) gfx_info->framebuffer + gfx_info->pitch * outer_height,
-			gfx_info->pitch * (gfx_info->height - outer_height));
+		lmemcpy(bootinfo->gfx_framebuffer,
+			bootinfo->gfx_framebuffer + bootinfo->gfx_pitch * outer_height,
+			bootinfo->gfx_pitch * (bootinfo->gfx_height - outer_height));
 
-		gfx_set_area(0, gfx_info->height-outer_height, gfx_info->width, outer_height, 0xFF000000);
+		gfx_set_area(0, bootinfo->gfx_height-outer_height, bootinfo->gfx_width, outer_height, 0xFF000000);
 	}
 
 	gfx_set_area(cursor_x * outer_width, cursor_y * outer_height,

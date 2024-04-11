@@ -11,7 +11,7 @@ load_kernel_elf:
 
 .header:
 	cmp rdx, 0
-	je .start
+	je .done
 
 	mov edi, [r8] ; type
 	cmp edi, 0
@@ -48,14 +48,11 @@ load_kernel_elf:
 	dec rdx
 	jmp .header
 
-.start:
-	; more stack space
-	mov rsp, 0x80000
-	xor rbp, rbp
+.done:
 
 	; ELF entry point
 	mov rax, [kernel_elf+24]
-	call rax
+	ret
 
 .fail:
 	cli

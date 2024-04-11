@@ -6,6 +6,7 @@ mmap:
 
 	xor ebx, ebx    ; counter for interrupt
 	mov di, MEMMAP
+	xor esi, esi    ; number of regions
 
 .loop:
 	; issue an INT 0x15, EAX = 0xE820 interrupt
@@ -17,32 +18,19 @@ mmap:
 	cmp eax, MAPMAGIC ; detect failure
 	jne .fail
 
-	cmp dword[di+16], 1
-	; jne .next
-
-	cmp dword[di+4], 0
-	jne .keep
-
-	cmp dword[di+0], 0x100000
-	jb .next
-
-.keep:
-	mov dword[di+20], 0
+	inc esi
 	add di, 24
 
-.next:
 	cmp ebx, 0
 	jne .loop
 
 	mov dword[di+0], 0
 	mov dword[di+4], 0
 
-	;mov ax, di
-	;sub ax, MEMMAP
-	;xor dx, dx
-	;mov bx, 24
-	;div bx
-	;mov [MEMMAPCNT], ax
+	mov dword[bootinfo.mmap_len+0], esi
+	mov dword[bootinfo.mmap_len+4], 0
+	mov dword[bootinfo.mmap_ptr+0], MEMMAP
+	mov dword[bootinfo.mmap_ptr+4], 0
 
 	ret
 
