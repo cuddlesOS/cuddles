@@ -47,7 +47,6 @@ STAGE3_C = \
 STAGE3 = $(STAGE3_C) \
 	stage3/isr.o \
 	stage3/yield.o \
-	stage3/paging.o \
 	stage3/watchdog.o
 
 PAD_BOUNDARY = pad() { truncate -s $$(echo "($$(du -b $$1 | cut -f1)+$$2-1)/$$2*$$2" | bc) $$1; }; pad

@@ -129,34 +129,6 @@ void heap_add(void *ptr, usize size)
 	kfree(h + 1);
 }
 
-void heap_add_region(MemRegion *region)
-{
-	switch (region->used) {
-		// region is reserved
-		case -1:
-			break;
-
-		// region is entirely free
-		case 0:
-			heap_add(region->start, region->size);
-			break;
-
-		// region is partly used
-		default: {
-			void *region_end = region->start + region->size;
-
-			// rounds up region->start to pagesize align
-			void *use_begin = (void *) ((u64) (region->start + PAGESIZE - 1) & ~(PAGESIZE - 1));
-			void *use_end = use_begin + region->used;
-
-			heap_add(region->start, use_begin - region->start);
-			heap_add(use_end, region_end - use_end);
-		}
-	}
-
-	region->used = -1; // just to be safe
-}
-
 heap_header *heap_get_free_ptr()
 {
 	return free_ptr;

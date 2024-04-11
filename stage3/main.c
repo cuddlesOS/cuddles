@@ -1,5 +1,4 @@
 #include "def.h"
-#include "paging.h"
 #include "gfx.h"
 #include "halt.h"
 #include "heap.h"
@@ -17,6 +16,17 @@
 #include "clock.h"
 #include "rng.h"
 #include "debug.h"
+
+typedef enum {
+	MEM_USABLE = 1,
+	MEM_RESERVED = 2,
+} mem_region_type;
+
+typedef struct __attribute__((packed)) {
+	void *start;
+	usize size;
+	usize type;
+} mem_region;
 
 char keymap[256] = { '\0' };
 
@@ -60,42 +70,34 @@ void keyboard_handler()
 
 void kmain()
 {
-	heap_init();
+	// PML3
+	for (u64 page = 0; page < 512*512; page++)
+		((u64 *) 0x200000)[page] = (page << 30) | 0b10000011; // bit 7 is for huge pages
 
-#define MMAP for (MemRegion *mreg = (void *) 0x500; mreg->start != nil; mreg++)
-	MMAP {
-		// remove anything between 0x100000 and 0x200000. it has already been mapped
-		usize start = (usize) mreg->start;
-		if (start >= 0x100000 && start < 0x200000) {
-			if (start + mreg->size <= 0x200000) {
-				mreg->size = 0; // kill it
-			} else {
-				mreg->size = start + mreg->size - 0x200000;
-				mreg->start = (void *) 0x200000;
-			}
-		}
-	}
+	// PML4
+	for (u64 tbl = 0; tbl < 512; tbl++)
+		((u64 *) 0x1000)[tbl] = (0x200000 + tbl * 0x1000) | 0b11;
 
-	// backup memory map
-	usize n_mreg = 0;
-	MMAP n_mreg++;
-	MemRegion mregs[n_mreg];
-	{
-		usize i = 0;
-		MMAP mregs[i++] = *mreg;
-	}
-
-	// setup paging
-	MMAP page_region(mreg);
-
-	page_region(&(MemRegion) {
-		.start = (void *) (u64) gfx_info->framebuffer,
-		.size = gfx_info->pitch * gfx_info->height,
-		.used = MEM_RESERVED,
-	});
+#define MMAP for (mem_region *mreg = (void *) 0x500; mreg->start != nil; mreg++)
 
 	// heap init
-	MMAP heap_add_region(mreg);
+	heap_init();
+	MMAP {
+		// remove anything between 0x100000 and 0x400000. it is used for kernel and page tables
+		usize start = (usize) mreg->start;
+		if (start >= 0x100000 && start < 0x400000) {
+			if (start + mreg->size <= 0x400000) {
+				mreg->size = 0; // kill it
+			} else {
+				mreg->size = start + mreg->size - 0x400000;
+				mreg->start = (void *) 0x400000;
+			}
+		}
+
+		// add to heap
+		if (mreg->type == MEM_USABLE) // usable
+			heap_add(mreg->start, mreg->size);
+	}
 
 	// font init
 	font_init();
@@ -106,13 +108,13 @@ void kmain()
 	print(S("welcome to cuddles\n"));
 
 	// memory map
-	print(S("memory map:\n"));
-	for (usize i = 0; i < n_mreg; i++) {
-		print_num_pad((u64) mregs[i].start, 16, 16, ' ');
+	print(S("heap memory:\n"));
+	MMAP {
+		print_num_pad((u64) mreg->start, 16, 16, ' ');
 		print(S(" | "));
-		print_num_pad((u64) mregs[i].start + mregs[i].size, 16, 16, ' ');
+		print_num_pad((u64) mreg->start + mreg->size, 16, 16, ' ');
 		print(S(" | "));
-		print_dec(mregs[i].used);
+		print_dec(mreg->type);
 		print(S("\n"));
 	}
 

@@ -24,7 +24,7 @@ paging:
 	mov [di], eax
 	add di, 8
 	add eax, 0x1000
-	cmp eax, 0x200000
+	cmp eax, 0x400000
 	jb .build_pt
 
 	; enable paging and long mode
