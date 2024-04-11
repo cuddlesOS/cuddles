@@ -9,6 +9,7 @@
 
 static heap_header init_free_ptr;
 static heap_header *free_ptr = nil;
+static usize total_size = 0;
 
 #ifdef DEBUG
 void heap_check()
@@ -127,9 +128,16 @@ void heap_add(void *ptr, usize size)
 	h->size = size - sizeof(heap_header);
 
 	kfree(h + 1);
+
+	total_size += size;
 }
 
 heap_header *heap_get_free_ptr()
 {
 	return free_ptr;
+}
+
+usize heap_total_size()
+{
+	return total_size;
 }

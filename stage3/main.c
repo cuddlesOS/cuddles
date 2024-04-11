@@ -125,6 +125,10 @@ void kmain(struct bootinfo *info)
 		print(S("\n"));
 	}
 
+	print(S("total heap size: "));
+	print_bytes(heap_total_size());
+	print(S("\n"));
+
 	print(S("gfx framebuffer at "));
 	print_hex((u64) bootinfo->gfx_framebuffer);
 	print(S("-"));
