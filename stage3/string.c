@@ -52,7 +52,7 @@ usize str_parse_num(str s, u8 base, u64 *x)
 		*x = (*x) * base + d;
 	}
 
-    return s.len;
+	return s.len;
 }
 
 usize str_parse_dbl(str s, double *x)
@@ -89,7 +89,7 @@ usize str_parse_dbl(str s, double *x)
 str str_walk(str *s, str sep)
 {
 	if (s->len == 0)
-		return NILS;
+		return (str) NILS;
 
 	usize x = str_find(*s, sep);
 	usize o = x + (x < s->len);

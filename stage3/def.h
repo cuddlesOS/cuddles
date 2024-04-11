@@ -30,17 +30,41 @@ typedef u8 bool;
 
 #define BITCAST(expr, from, to) (((union { from f; to t; }) { .f = expr }).t)
 
-typedef struct {
-	usize len;
-	char *data;
-} str;
-
-#define S(x) ((str) { sizeof (x) - 1, (x) })
-#define NILS ((str) { 0, nil })
-
 #define BARRIER_VAR(var) asm volatile(""::"m"(var))
 #define BARRIER() asm volatile("":::"memory")
 
 #define LEN(x) (sizeof (x) / sizeof *(x))
+
+#define MKVEC(T) typedef struct { usize len; T *data; } slice_ ## T; typedef struct { usize cap; slice_ ## T slice; } vec_ ## T;
+#define NILS { .len = 0, .data = nil }
+#define NILVEC { .cap = 0, .slice = NILS }
+
+#define S(x) ((str) { sizeof (x) - 1, (x) })
+#define SL(T, ...) ((slice_ ## T) { .len = LEN((T[]) { __VA_ARGS__ }), .data = (T[]) { __VA_ARGS__ } })
+
+MKVEC(char)
+MKVEC(bool)
+
+MKVEC(u8) MKVEC(i8)
+MKVEC(u16) MKVEC(i16)
+MKVEC(u32) MKVEC(i32)
+MKVEC(u64) MKVEC(i64)
+MKVEC(usize) MKVEC(isize) MKVEC(ssize)
+MKVEC(f32) MKVEC(f64)
+
+typedef slice_char str;
+
+typedef enum {
+	ORD_LESS = -1,
+	ORD_EQ = 0,
+	ORD_GREATER = 1,
+} ord;
+
+#define ORD(a, b) ( \
+	(a) < (b) ? ORD_LESS : \
+	(a) > (b) ? ORD_GREATER : \
+	ORD_EQ)
+
+#define CHAIN_ORD(A, B) (((A) == ORD_EQ) ? (B) : (A))
 
 #endif
