@@ -24,5 +24,6 @@ void print_hex(u64 x);
 void print_num(u64 x, u8 base);
 void print_num_pad(u64 x, u8 base, u8 pad_len, char pad_char);
 void print_dbl(double d, u8 points);
+void print_bytes(usize bytes);
 
 #endif

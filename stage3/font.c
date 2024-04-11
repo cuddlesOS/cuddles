@@ -235,3 +235,21 @@ void print_dbl(double d, u8 points)
 	print_char('.');
 	print_num_pad((d - (double) i) * (double) ipow(10, points), 10, points, '0');
 }
+
+void print_bytes(usize bytes)
+{
+	static char fmt[] = { ' ', 'K', 'M', 'G', 'T' };
+	usize unit = ipow(1000, LEN(fmt)-1);
+	for (usize i = 0; i < LEN(fmt); i++) {
+		if (bytes >= unit || unit == 1) {
+			print_num_pad(bytes/unit, 10, 3, ' ');
+			print_char('.');
+			print_dec((bytes%unit)*10/unit);
+			print_char(' ');
+			print_char(fmt[LEN(fmt)-1-i]);
+			print_char('B');
+			break;
+		}
+		unit /= 1000;
+	}
+}

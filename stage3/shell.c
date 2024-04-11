@@ -184,24 +184,6 @@ static void cmd_uname(str arg)
 	print(S("\n"));
 }
 
-static void print_bytes(usize bytes)
-{
-	static char fmt[] = { ' ', 'K', 'M', 'G', 'T' };
-	usize unit = ipow(1000, LEN(fmt)-1);
-	for (usize i = 0; i < LEN(fmt); i++) {
-		if (bytes >= unit || unit == 1) {
-			print_num_pad(bytes/unit, 10, 3, ' ');
-			print_char('.');
-			print_dec((bytes%unit)*10/unit);
-			print_char(' ');
-			print_char(fmt[LEN(fmt)-1-i]);
-			print_char('B');
-			break;
-		}
-		unit /= 1000;
-	}
-}
-
 static void cmd_ls(str arg)
 {
 	dir d = fs_readdir(arg);
