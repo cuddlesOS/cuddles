@@ -17,6 +17,12 @@ typedef long i64;
 
 typedef u64 usize;
 typedef i64 isize;
+typedef i64 ssize; // TODO: replace by ssize_t
+
+typedef u64 nanos;
+
+typedef float f32;
+typedef double f64;
 
 typedef u8 bool;
 #define false ((bool) 0)
