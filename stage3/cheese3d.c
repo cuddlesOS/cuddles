@@ -4,21 +4,22 @@
 #include "gfx.h"
 #include "memory.h"
 
-cheese3d_ctx cheese3d_create(u32 width, u32 height, u32 pitch, u32 bgcolor)
+cheese3d_ctx cheese3d_create(void *target, u32 width, u32 height, u32 pitch, u32 bgcolor)
 {
 	return (cheese3d_ctx) {
+		.target = target,
 		.width = width,
 		.height = height,
 		.pitch = pitch,
 		.bgcolor = bgcolor,
-		.depth_buffer = kmalloc(gfx_info->width * gfx_info->height * sizeof(u32)),
-		.color_buffer = kmalloc(gfx_info->pitch * gfx_info->height),
+		.depth_buffer = kmalloc(width * height * sizeof(u32)),
+		.color_buffer = kmalloc(pitch * height),
 	};
 }
 
 cheese3d_ctx cheese3d_create_default(u32 bgcolor)
 {
-	return cheese3d_create(gfx_info->width, gfx_info->height, gfx_info->pitch, bgcolor);
+	return cheese3d_create((void *) (u64) gfx_info->framebuffer, gfx_info->width, gfx_info->height, gfx_info->pitch, bgcolor);
 }
 
 void cheese3d_destroy(cheese3d_ctx ctx)
@@ -29,8 +30,8 @@ void cheese3d_destroy(cheese3d_ctx ctx)
 
 void cheese3d_clear(cheese3d_ctx ctx, bool color, bool depth)
 {
-	for (u32 x = 0; x < gfx_info->width; x++)
-	for (u32 y = 0; y < gfx_info->height; y++) {
+	for (u32 x = 0; x < ctx.width; x++)
+	for (u32 y = 0; y < ctx.height; y++) {
 		if (color) ctx.depth_buffer[y * ctx.width + x] = 0.0;
 		if (depth) *(u32 *) (ctx.color_buffer + y * ctx.pitch + x * sizeof(u32)) = ctx.bgcolor;
 	}
@@ -71,7 +72,7 @@ void cheese3d_render(cheese3d_ctx ctx, usize num, vertex *vertices, texture *tex
 		i32 i_min[2];
 		i32 i_max[2];
 		for (int k = 0; k < 2; k++) {
-			i32 size = k ? gfx_info->height : gfx_info->width;
+			i32 size = k ? ctx.height : ctx.width;
 
 			i_min[k] = (0.5 + 0.5 * min[k]) * size;
 			i_max[k] = (0.5 + 0.5 * max[k]) * size;
@@ -85,10 +86,10 @@ void cheese3d_render(cheese3d_ctx ctx, usize num, vertex *vertices, texture *tex
 		for (i32 y = i_min[1]; y <= i_max[1]; y++) {
 			float point[2] = {
 				0.0,
-				(float) y / gfx_info->height * 2.0 - 1.0
+				(float) y / ctx.height * 2.0 - 1.0
 			};
 			for (i32 x = i_min[0]; x <= i_max[0]; x++) {
-				point[0] = (float) x / gfx_info->width * 2.0 - 1.0;
+				point[0] = (float) x / ctx.width * 2.0 - 1.0;
 
 				float weights[3];
 				if ((weights[0] = tri_area(point, verts[1], verts[2])) < 0)
@@ -144,5 +145,5 @@ void cheese3d_render(cheese3d_ctx ctx, usize num, vertex *vertices, texture *tex
 
 void cheese3d_display(cheese3d_ctx ctx)
 {
-	lmemcpy((void *) (u64) gfx_info->framebuffer, ctx.color_buffer, gfx_info->pitch * gfx_info->height);
+	lmemcpy(ctx.target, ctx.color_buffer, ctx.pitch * ctx.height);
 }

@@ -16,6 +16,7 @@ typedef struct {
 } texture;
 
 typedef struct {
+	void *target;
 	u32 width;
 	u32 height;
 	u32 pitch;
@@ -27,7 +28,7 @@ typedef struct {
 #define VERT(x, y, z, s, t) { { x, y, z }, { s, t } } // this exists to work with the QUAD macro
 #define QUAD(a, b, c, d) a, b, c, a, c, d
 
-cheese3d_ctx cheese3d_create(u32 width, u32 height, u32 pitch, u32 bgcolor);
+cheese3d_ctx cheese3d_create(void *target, u32 width, u32 height, u32 pitch, u32 bgcolor);
 cheese3d_ctx cheese3d_create_default(u32 bgcolor);
 void cheese3d_destroy(cheese3d_ctx ctx);
 void cheese3d_clear(cheese3d_ctx ctx, bool color, bool depth);
